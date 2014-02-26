@@ -15,7 +15,7 @@ def hello():
 
 @app.route("/lol")
 def name_isnt_important():
-    return "blah"
+    return "blah: new deployment test"
 
 @app.errorhandler(500)
 def error_500(error):
