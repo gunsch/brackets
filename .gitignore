@@ -1,0 +1,11 @@
+# Actual config file
+default.config
+
+# Server-side logs
+logs/
+
+# Compiled files
+*.pyc
+
+# Vim
+.*.swp
