@@ -1,6 +1,5 @@
-# things to do:
-# One: file-based configuration. Set up mysql connection.
-# Two: finish git deployment setup
+# Things to do:
+# * file-based configuration. Set up mysql connection.
 #
 # Note: config settings should include the following built-ins:
 # DEBUG = True
