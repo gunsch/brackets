@@ -1,5 +1,5 @@
 # Actual config file
-default.config
+config.py
 
 # Server-side logs
 logs/

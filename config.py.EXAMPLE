@@ -1,0 +1,11 @@
+# Config README:
+#
+# Copy config.py.EXAMPLE to config.py and apply your settings. Do not attempt
+# to check it in.
+#
+# If you add a new configuration field to config.py, also add it to the .EXAMPLE
+# file.
+
+class settings(object):
+    DEBUG = True
+    SECRET_KEY = 'Random string here'

@@ -1,13 +1,27 @@
 # Things to do:
-# * file-based configuration. Set up mysql connection.
+# * Set up sql tables (and record statements to apply).
 #
 # Note: config settings should include the following built-ins:
-# DEBUG = True
-# SECRET_KEY (?)
-# SQL login info
+
+import sys
 
 from flask import Flask
+
 app = Flask(__name__)
+try:
+    app.config.from_object('config.settings')
+except ImportError:
+    sys.stderr.write('\n'.join([
+        'Could not find config file. If this is your first time running this',
+        'program, try the following:',
+        '',
+        '    cp config.py.EXAMPLE config.py',
+        '    python app.py',
+        '',
+        '',
+    ]))
+    sys.exit(-1)
+
 
 @app.route("/")
 def hello():
