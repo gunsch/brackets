@@ -3,9 +3,10 @@
 # 
 # Note: config settings should include the following built-ins: 
   
+import os
 import reddit_auth
-import sys 
-import os 
+import sys
+import time
   
 from flask import Flask, redirect, request, session 
 app = Flask(__name__)
@@ -28,7 +29,13 @@ def login_authenticated():
   user = reddit_auth_instance.validate_login(request)
   if user is None:
     return 'Login failure'
-  print repr(user)
+
+  user_age_days = (time.time() - user['created']) / 3600 / 24;
+  if user_age_days < app.config['MINIMUM_USER_AGE_DAYS']:
+    return (
+        'Only accounts older than %d days may participate ' %
+        (app.config['MINIMUM_USER_AGE_DAYS']))
+
   session['user'] = user
   return redirect('/')
 

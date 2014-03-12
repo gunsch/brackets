@@ -14,6 +14,10 @@ class settings(object):
     CONSUMER_SECRET = 'zjfnyzPriCZERJmapHsVeMnrGJU'
     CONSUMER_KEY = '81VexWf3Q8eXBQ'
 
+    # Reddit settings
+    MINIMUM_USER_AGE_DAYS = 30
+
     # Note: must match host in oauth redirect URL
     HOST = '127.0.0.1'
     PORT = 5000
+
