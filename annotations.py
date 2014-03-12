@@ -1,3 +1,4 @@
+from functools import wraps
 import flask
 
 def authenticated(original_route_handler):
@@ -6,6 +7,7 @@ def authenticated(original_route_handler):
 
   Users are returned to the index page if no valid session is present.
   '''
+  @wraps(original_route_handler)
   def new_route_handler(*args, **kwargs):
     if 'reddit_user' not in flask.session or 'name' not in flask.session['reddit_user']:
       return flask.redirect('/')

@@ -21,6 +21,25 @@ class Users:
     db_user = cursor.fetchone()
     return User(db_user) if db_user is not None else User(username)
 
+  def save(self, user):
+    try:
+      cursor = self.__connection.cursor()
+      cursor.execute('''
+        INSERT INTO `users` (`username`, `subreddit`, `espn_bracket_id`)
+            VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            `subreddit` = %s,
+            `espn_bracket_id` = %s
+      ''',
+      [
+          # Insert
+          user['username'], user['subreddit'], '0',
+          # Update
+          user['subreddit'], '0'
+      ])
+      return True
+    except:
+      return False
 
 class User(dict):
   def __init__(self, data = None):

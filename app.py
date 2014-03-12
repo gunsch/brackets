@@ -20,15 +20,24 @@ def index():
   else:
     return render_template('index.tpl', user = None)
 
-# Settings page
+#########################################################
+## Settings handlers
+
 @app.route('/settings')
 @annotations.authenticated
-def preferences():
+def settings():
   subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
-  print(subreddits)
   return render_template('settings.tpl',
       subreddits = subreddits,
       user = session['db_user'])
+
+@app.route('/settings/update', methods = ['POST'])
+@annotations.authenticated
+def update_settings():
+  user = session['db_user']
+  user['subreddit'] = request.form['subreddit']
+  return redirect('/settings')
+
 
 ###########################################################
 ## Login/logout handlers
