@@ -15,9 +15,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-  if 'reddit_user' in session:
-    return 'Logged in as ' + session['reddit_user']['name']
-  return "Hello World! "
+  if 'db_user' in session:
+    return render_template('index.tpl', user = session['db_user'])
+  else:
+    return render_template('index.tpl', user = None)
 
 # Settings page
 @app.route('/settings')

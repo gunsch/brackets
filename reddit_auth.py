@@ -93,6 +93,6 @@ class RedditAuth:
 
   def __build_login_redirect_uri(self):
     url = 'http://' + self.host
-    if self.port is not None:
+    if self.port is not None and self.port != 80:
         url = url + ':' + str(self.port)
     return url + '/login/authenticated'
