@@ -1,5 +1,9 @@
 # Things to do: 
-# * Set up sql tables (and record statements to apply). 
+# - Add espn bracket ID setting
+# - users table gets espn bracket score + last updated timestamp
+# - UI to something more meaningful, easy would be jqueryUI + bootstrap
+# - See if jinja can dynamic include; if so, render gets a single main-template path
+# - Caching/rate-limiting decorators?
 # 
 # Note: config settings should include the following built-ins: 
 
