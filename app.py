@@ -2,14 +2,15 @@
 # * Set up sql tables (and record statements to apply). 
 # 
 # Note: config settings should include the following built-ins: 
-  
+
+import annotations  
 import os
 import reddit_auth
 import sys
 import time
 import users
   
-from flask import Flask, redirect, request, session 
+from flask import Flask, redirect, render_template, request, session
 app = Flask(__name__)
 
 @app.route("/")
@@ -18,16 +19,18 @@ def index():
     return 'Logged in as ' + session['reddit_user']['name']
   return "Hello World! "
 
+# Settings page
+@app.route('/settings')
+@annotations.authenticated
+def preferences():
+  return render_template('settings.tpl', user = session['db_user'])
+
 ###########################################################
 ## Login/logout handlers
 
 @app.route('/login')
 def login():
   return reddit_auth_instance.redirect_to_authorization_url()
-
-@app.route('/preferences')
-def preferences():
-  return 'preferences page'
 
 @app.route("/login/authenticated")
 def login_authenticated():
