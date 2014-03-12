@@ -35,9 +35,9 @@ class RedditAuth:
         scope = u'identity,mysubreddits',
         redirect_uri = self.__build_login_redirect_uri()) 
 
-    authorization_url, state = reddit.authorization_url(auth_url) 
-    print authorization_url
-    print auth_url
+    authorization_url, state = reddit.authorization_url(
+        auth_url,
+        duration = 'permanent')
     flask.session['oauth_state'] = state 
     return flask.redirect(authorization_url) 
 

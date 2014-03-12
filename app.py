@@ -5,7 +5,6 @@
 # - Caching subreddit list (settings)?
 # - flash message, particularly on login/saves
 # - client-side subreddit validation (catch simple mistakes)
-# - handle 401 when reddit expires :( store timestamp in session maybe
 # - pages for viewing by subreddit, by all users, and overall
 #
 
