@@ -33,9 +33,9 @@ class Users:
       ''',
       [
           # Insert
-          user['username'], user['subreddit'], '0',
+          user['username'], user['subreddit'], user['bracket_id'],
           # Update
-          user['subreddit'], '0'
+          user['subreddit'], user['bracket_id']
       ])
       return True
     except:

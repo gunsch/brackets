@@ -17,7 +17,7 @@
 
   <div class="form-group input-subreddit">
     <label for="subreddit">ESPN Bracket ID</label>
-    <input type="text" name="espn-bracket-id" value="{{ user['bracket_id'] | e }}"
+    <input type="text" name="bracket_id" value="{{ user['bracket_id'] | e }}"
         class="form-control" placeholder="12345" />
     <span class="help-block">
       Some text about how to find the bracket ID. Maybe paste in the URL.

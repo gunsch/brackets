@@ -1,5 +1,5 @@
 # Things to do: 
-# - Save espn bracket ID setting
+# - redirect to settings page if first time
 # - users table gets espn bracket score + last updated timestamp
 # - Caching/rate-limiting decorators?
 # - Caching subreddit list (settings)?
@@ -49,6 +49,7 @@ def settings():
 def update_settings():
   user = session['db_user']
   user['subreddit'] = request.form['subreddit']
+  user['bracket_id'] = request.form['bracket_id']
   users.save(user)
   return redirect('/settings')
 
