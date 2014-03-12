@@ -21,3 +21,8 @@ class settings(object):
     HOST = '127.0.0.1'
     PORT = 5000
 
+    # MySQL settings
+    MYSQL_HOST = 'localhost'
+    MYSQL_USERNAME = 'root'
+    MYSQL_PASSWORD = ''
+    MYSQL_DATABASE = 'brackets'

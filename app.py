@@ -7,22 +7,27 @@ import os
 import reddit_auth
 import sys
 import time
+import users
   
 from flask import Flask, redirect, request, session 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-  if 'user' in session:
-    return 'Logged in as ' + session['user']['name']
+  if 'reddit_user' in session:
+    return 'Logged in as ' + session['reddit_user']['name']
   return "Hello World! "
 
 ###########################################################
 ## Login/logout handlers
 
-@app.route("/login")
+@app.route('/login')
 def login():
   return reddit_auth_instance.redirect_to_authorization_url()
+
+@app.route('/preferences')
+def preferences():
+  return 'preferences page'
 
 @app.route("/login/authenticated")
 def login_authenticated():
@@ -36,7 +41,8 @@ def login_authenticated():
         'Only accounts older than %d days may participate ' %
         (app.config['MINIMUM_USER_AGE_DAYS']))
 
-  session['user'] = user
+  session['reddit_user'] = user
+  session['db_user'] = users.get(user['name'])
   return redirect('/')
 
 @app.route("/logout")
@@ -76,9 +82,17 @@ def __build_reddit_auth_instance(app):
       consumer_key = app.config['CONSUMER_KEY'],
       consumer_secret = app.config['CONSUMER_SECRET'])
 
+def __build_database_connection(app):
+  return users.Users(
+      host = app.config['MYSQL_HOST'],
+      username = app.config['MYSQL_USERNAME'],
+      password = app.config['MYSQL_PASSWORD'],
+      database = app.config['MYSQL_DATABASE'])
+
 # Main methods: always invoked
 __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
+users = __build_database_connection(app)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately
