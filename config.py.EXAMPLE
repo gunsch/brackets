@@ -9,3 +9,11 @@
 class settings(object):
     DEBUG = True
     SECRET_KEY = 'Random string here'
+
+    # Oauth settings
+    CONSUMER_SECRET = 'zjfnyzPriCZERJmapHsVeMnrGJU'
+    CONSUMER_KEY = '81VexWf3Q8eXBQ'
+
+    # Note: must match host in oauth redirect URL
+    HOST = '127.0.0.1'
+    PORT = 5000

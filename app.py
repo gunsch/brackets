@@ -14,11 +14,8 @@ import requests
 from random import random 
 from hashlib import sha1 
   
-os.environ['DEBUG'] = '1'
-  
 auth_url = "https://ssl.reddit.com/api/v1/authorize"
 token_endpoint = "https://ssl.reddit.com/api/v1/access_token"
-redirect_uri = "http://127.0.0.1:5000/login/authenticated"
 
   
 app = Flask(__name__) 
@@ -36,10 +33,12 @@ except ImportError:
     ])) 
     sys.exit(-1) 
   
-  
+
 @app.route("/") 
-def hello(): 
-    return "Hello World!"
+def hello():
+    if 'user' in session:
+        return 'Logged in as ' + session['user']['name']
+    return "Hello World! "
   
 @app.route("/lol") 
 def name_isnt_important(): 
@@ -50,7 +49,9 @@ def login():
     consumer_key = app.config['CONSUMER_KEY']
     state = sha1(str(random())).hexdigest() 
   
-    reddit = OAuth2Session(consumer_key, scope=['identity'], redirect_uri = redirect_uri) 
+    reddit = OAuth2Session(consumer_key,
+        scope = ['identity'],
+        redirect_uri = build_redirect_uri()) 
   
     authorization_url, state = reddit.authorization_url(auth_url) 
   
@@ -61,6 +62,7 @@ def login():
   
 @app.route("/logout") 
 def logout(): 
+    session.clear()
     return "this is the logout page"
   
 @app.route("/login/authenticated") 
@@ -70,24 +72,34 @@ def login_authenticated():
 
     code = request.args.get('code', '') 
     state = request.args.get('state', '')
-    assert(session['oauth_state'] == state)
+    if session['oauth_state'] != state:
+        return 'Invalid oauth state.'
 
-    reddit = OAuth2Session(consumer_key, state=session['oauth_state'], redirect_uri = redirect_uri) 
+    try:
+        reddit = OAuth2Session(consumer_key,
+            state = session['oauth_state'],
+            redirect_uri = build_redirect_uri()) 
 
-    token = reddit.fetch_token(
-        token_endpoint,
-        code = code, 
-        auth = HTTPBasicAuth(consumer_key, consumer_secret)) 
+        token = reddit.fetch_token(
+            token_endpoint,
+            code = code, 
+            auth = HTTPBasicAuth(consumer_key, consumer_secret)) 
+    except:
+        return 'Invalid blah'
 
     #store token
     session['oauth_token'] = token
 
-    header = {'Authorization' : 'bearer ' + token["access_token"]}
-    print header
+    get_user_request = requests.get('https://oauth.reddit.com/api/v1/me',
+        headers = {'Authorization' : 'bearer ' + token['access_token']})
+    session['user'] = get_user_request.json()
+    return redirect('/')
 
-    r = requests.get('https://oauth.reddit.com/api/v1/me', headers=header)
-    resp = r.json()
-    return "You are authenticated as: " + resp['name']
+def build_redirect_uri():
+    url = 'http://' + app.config['HOST']
+    if 'PORT' in app.config:
+        url = url + ':' + str(app.config['PORT'])
+    return url + '/login/authenticated'
   
 @app.errorhandler(500) 
 def error_500(error): 
@@ -95,4 +107,4 @@ def error_500(error):
     return format_exc(), 500, {'Content-Type': 'text/plain'} 
   
 if __name__ == "__main__": 
-    app.run() 
+    app.run(host = app.config['HOST'], port = app.config['PORT'])
