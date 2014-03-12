@@ -1,12 +1,11 @@
 # Things to do: 
 # - Save espn bracket ID setting
 # - users table gets espn bracket score + last updated timestamp
-# - UI to something more meaningful, easy would be jqueryUI + bootstrap
 # - Caching/rate-limiting decorators?
 # - Caching subreddit list (settings)?
 # - flash message, particularly on login/saves
 # - client-side subreddit validation (catch simple mistakes)
-# - navbar
+# - handle 401 when reddit expires :( store timestamp in session maybe
 # 
 # Note: config settings should include the following built-ins: 
 
@@ -33,6 +32,7 @@ def index():
 @app.route('/settings')
 @annotations.authenticated
 def settings():
+  print(session['reddit_user'])
   subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
   subreddits_autocomplete = [
     {

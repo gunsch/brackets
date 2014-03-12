@@ -18,6 +18,8 @@
 </head>
 <body>
 
+  {% include 'navigation.tpl' %}
+
   <div class="container">
     {% include content_template %}
   </div>
