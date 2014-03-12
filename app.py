@@ -4,6 +4,7 @@
 # - UI to something more meaningful, easy would be jqueryUI + bootstrap
 # - See if jinja can dynamic include; if so, render gets a single main-template path
 # - Caching/rate-limiting decorators?
+# - Caching subreddit list?
 # 
 # Note: config settings should include the following built-ins: 
 
@@ -20,9 +21,9 @@ app = Flask(__name__)
 @app.route("/")
 def index():
   if 'db_user' in session:
-    return render_template('index.tpl', user = session['db_user'])
+    return __render('index', user = session['db_user'])
   else:
-    return render_template('index.tpl', user = None)
+    return __render('index', user = None)
 
 #########################################################
 ## Settings handlers
@@ -31,8 +32,15 @@ def index():
 @annotations.authenticated
 def settings():
   subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
-  return render_template('settings.tpl',
-      subreddits = subreddits,
+  subreddits_autocomplete = [
+    {
+      'label': '/r/%s (%s)' % (subreddit['display_name'], subreddit['title']),
+      'value': subreddit['display_name']
+    }
+    for subreddit in subreddits
+  ]
+  return __render('settings',
+      subreddits_autocomplete = subreddits_autocomplete,
       user = session['db_user'])
 
 @app.route('/settings/update', methods = ['POST'])
@@ -110,6 +118,18 @@ def __build_database_connection(app):
       username = app.config['MYSQL_USERNAME'],
       password = app.config['MYSQL_PASSWORD'],
       database = app.config['MYSQL_DATABASE'])
+
+def __render(template_name, **kwargs):
+  '''
+  Renders the main page, with the content section filled in as an include.
+
+  Arguments:
+  - template_name: the name of the template to invoke. Appends a '.tpl' extension
+    before loading.
+  - **kwargs: anything to pass to the template.
+  '''
+  return render_template('page.tpl',
+      content_template = template_name + '.tpl', **kwargs)
 
 # Main methods: always invoked
 __load_config(app)
