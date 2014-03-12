@@ -23,7 +23,11 @@ def index():
 @app.route('/settings')
 @annotations.authenticated
 def preferences():
-  return render_template('settings.tpl', user = session['db_user'])
+  subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
+  print(subreddits)
+  return render_template('settings.tpl',
+      subreddits = subreddits,
+      user = session['db_user'])
 
 ###########################################################
 ## Login/logout handlers

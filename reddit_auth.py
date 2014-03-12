@@ -1,10 +1,11 @@
+from hashlib import sha1
+from random import random
 from requests_oauthlib import OAuth2Session 
 from requests.auth import HTTPBasicAuth 
-import requests
-import flask
 
-from random import random
-from hashlib import sha1
+import flask
+import requests
+
 
 auth_url = "https://ssl.reddit.com/api/v1/authorize"
 token_endpoint = "https://ssl.reddit.com/api/v1/access_token"
@@ -31,11 +32,12 @@ class RedditAuth:
 
     reddit = OAuth2Session(
         self.consumer_key,
-        scope = ['identity'],
+        scope = u'identity,mysubreddits',
         redirect_uri = self.__build_login_redirect_uri()) 
 
     authorization_url, state = reddit.authorization_url(auth_url) 
-
+    print authorization_url
+    print auth_url
     flask.session['oauth_state'] = state 
     return flask.redirect(authorization_url) 
 
@@ -64,13 +66,30 @@ class RedditAuth:
     except:
         return None
 
-    #store token
+    # store token for all future requests
     flask.session['oauth_token'] = token
+    return self.__make_oauth_request(
+        'https://oauth.reddit.com/api/v1/me').json()
 
-    get_user_request = requests.get(
-        'https://oauth.reddit.com/api/v1/me',
-        headers = {'Authorization' : 'bearer ' + token['access_token']})
-    return get_user_request.json()
+  def get_subreddits(self, username):
+    subreddits_json = self.__make_oauth_request(
+        'https://oauth.reddit.com/subreddits/mine/subscriber').json()
+    subreddits_array = [
+        {
+            'title': subreddit['data']['title'],
+            'display_name': subreddit['data']['display_name']
+        }
+        for subreddit in subreddits_json['data']['children']
+    ]
+    return sorted(subreddits_array, key = lambda s: s['display_name'].lower())
+
+
+  def __make_oauth_request(self, url):
+    return requests.get(url,
+        headers = {
+          'Authorization' : 'bearer ' + flask.session['oauth_token']['access_token'],
+          'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
+        })
 
   def __build_login_redirect_uri(self):
     url = 'http://' + self.host
