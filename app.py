@@ -75,6 +75,11 @@ def login_authenticated():
 
   session['reddit_user'] = user
   session['db_user'] = users.get(user['name'])
+
+  # If no subreddit is set yet, go directly to settings page
+  if not session['db_user']['subreddit']:
+    return redirect('/settings')
+
   return redirect('/')
 
 @app.route("/logout")
