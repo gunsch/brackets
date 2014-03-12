@@ -3,17 +3,54 @@
 # 
 # Note: config settings should include the following built-ins: 
   
+import reddit_auth
 import sys 
 import os 
   
 from flask import Flask, redirect, request, session 
-
-import reddit_auth
-
 app = Flask(__name__)
-try:
+
+@app.route("/")
+def index():
+  if 'user' in session:
+    return 'Logged in as ' + session['user']['name']
+  return "Hello World! "
+
+###########################################################
+## Login/logout handlers
+
+@app.route("/login")
+def login():
+  return reddit_auth_instance.redirect_to_authorization_url()
+
+@app.route("/login/authenticated")
+def login_authenticated():
+  user = reddit_auth_instance.validate_login(request)
+  if user is None:
+    return 'Login failure'
+  print repr(user)
+  session['user'] = user
+  return redirect('/')
+
+@app.route("/logout")
+def logout():
+  session.clear()
+  return redirect('/')
+
+##########################################################
+## Generic handlers
+
+@app.errorhandler(500)
+def error_500(error):
+  from traceback import format_exc
+  return format_exc(), 500, {'Content-Type': 'text/plain'}
+
+##########################################################
+## Helper methods
+def __load_config(app):
+  try:
     app.config.from_object('config.settings')
-except ImportError:
+  except ImportError:
     sys.stderr.write('\n'.join([
         'Could not find config file. If this is your first time running this',
         'program, try the following:',
@@ -25,43 +62,18 @@ except ImportError:
     ]))
     sys.exit(-1)
 
-reddit_auth_instance = reddit_auth.RedditAuth(
-    host = app.config['HOST'],
-    port = app.config['PORT'],
-    consumer_key = app.config['CONSUMER_KEY'],
-    consumer_secret = app.config['CONSUMER_SECRET'])
+def __build_reddit_auth_instance(app):
+  return reddit_auth.RedditAuth(
+      host = app.config['HOST'],
+      port = app.config['PORT'],
+      consumer_key = app.config['CONSUMER_KEY'],
+      consumer_secret = app.config['CONSUMER_SECRET'])
 
-@app.route("/")
-def hello():
-    if 'user' in session:
-        return 'Logged in as ' + session['user']['name']
-    return "Hello World! "
+# Main methods: always invoked
+__load_config(app)
+reddit_auth_instance = __build_reddit_auth_instance(app)
 
-@app.route("/lol")
-def name_isnt_important(): 
-    return "blah: new deployment test"
-  
-@app.route("/login")
-def login():
-    return reddit_auth_instance.redirect_to_authorization_url()
-
-@app.route("/logout") 
-def logout(): 
-    session.clear()
-    return "this is the logout page"
-  
-@app.route("/login/authenticated") 
-def login_authenticated(): 
-    user = reddit_auth_instance.validate_login(request)
-    if user is None:
-        return 'Login failure'
-    session['user'] = user
-    return redirect('/')
-  
-@app.errorhandler(500) 
-def error_500(error): 
-    from traceback import format_exc 
-    return format_exc(), 500, {'Content-Type': 'text/plain'} 
-  
-if __name__ == "__main__": 
-    app.run(host = app.config['HOST'], port = app.config['PORT'])
+# Startup when invoked via "python app.py"
+# mod_wsgi runs the app separately
+if __name__ == "__main__":
+  app.run(host = app.config['HOST'], port = app.config['PORT'])
