@@ -36,6 +36,7 @@ def settings():
 def update_settings():
   user = session['db_user']
   user['subreddit'] = request.form['subreddit']
+  users.save(user)
   return redirect('/settings')
 
 
