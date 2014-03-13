@@ -1,12 +1,11 @@
-# Things to do: 
+# Things to do:
 # - users table gets espn bracket score + last updated timestamp
 # - Caching/rate-limiting decorators?
 # - Caching subreddit list (settings)?
 # - note: caching will have to happen at a function level, with the ability to
 #   get timestamps out. imagine homepage table with "last updated".
 # - flash message, particularly on login/saves
-# - client-side subreddit validation (catch simple mistakes)
-# - pages for viewing by subreddit, by all users, and overall
+# - server-side subreddit validation (what does this look like?)
 #
 
 import annotations

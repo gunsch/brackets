@@ -7,7 +7,8 @@
     <div class="input-group">
       <span class="input-group-addon">/r/</span>
       <input id="subreddit" name="subreddit" value="{{ user['subreddit'] | e }}"
-          type="text" class="form-control" placeholder="CollegeBasketball" />
+          type="text" class="form-control" placeholder="CollegeBasketball"
+          required/>
     </div>
     <span class="help-block">
       Your bracket will be associated with the chosen subreddit. You can change
@@ -17,8 +18,9 @@
 
   <div class="form-group input-subreddit">
     <label for="subreddit">ESPN Bracket ID</label>
-    <input type="text" name="bracket_id" value="{{ user['bracket_id'] | e }}"
-        class="form-control" placeholder="12345" />
+    <input type="text" id="bracket_id" name="bracket_id"
+        value="{{ user['bracket_id'] | e }}"
+        class="form-control" placeholder="12345" required pattern="[0-9]+" />
     <span class="help-block">
       Some text about how to find the bracket ID. Maybe paste in the URL.
     </span>
@@ -29,8 +31,22 @@
 
 <script>
   $(function() {
-    $('#subreddit').autocomplete({
-      source: {{ subreddits_autocomplete | tojson | safe }}
+    var subreddits = {{ subreddits_autocomplete | tojson | safe }};
+    $('#subreddit').autocomplete({source: subreddits});
+
+    // Lazy programmer spotted
+    $('form').on('change blur keydown', function() {
+      var isSubredditValid = subreddits.some(function(subreddit) {
+        return subreddit.value == $('#subreddit').val();
+      });
+      $('#subreddit').parent().toggleClass('has-error', !isSubredditValid);
+      $('#subreddit').parent().toggleClass('has-success', isSubredditValid);
+      $('#subreddit')[0].setCustomValidity(
+          isSubredditValid ? '' : 'Invalid subreddit');
+
+      var isBracketIdValid = $('#bracket_id')[0].checkValidity();
+      $('#bracket_id').parent().toggleClass('has-error', !isBracketIdValid);
+      $('#bracket_id').parent().toggleClass('has-success', isBracketIdValid);
     });
   });
 </script>
