@@ -1,14 +1,16 @@
 # Things to do: 
-# - redirect to settings page if first time
 # - users table gets espn bracket score + last updated timestamp
 # - Caching/rate-limiting decorators?
 # - Caching subreddit list (settings)?
+# - note: caching will have to happen at a function level, with the ability to
+#   get timestamps out. imagine homepage table with "last updated".
 # - flash message, particularly on login/saves
 # - client-side subreddit validation (catch simple mistakes)
 # - pages for viewing by subreddit, by all users, and overall
 #
 
-import annotations  
+import annotations
+import brackets
 import os
 import reddit_auth
 import sys
@@ -20,10 +22,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-  if 'db_user' in session:
-    return __render('index', user = session['db_user'])
-  else:
-    return __render('index', user = None)
+  user = session['db_user'] if 'db_user' in session else None
+  return __render('leaderboard', user = user, scores = brackets.get_subreddit_scores())
 
 #########################################################
 ## Settings handlers
@@ -126,6 +126,9 @@ def __build_database_connection(app):
       password = app.config['MYSQL_PASSWORD'],
       database = app.config['MYSQL_DATABASE'])
 
+def __build_brackets_manager():
+  return brackets.Brackets()
+
 def __render(template_name, **kwargs):
   '''
   Renders the main page, with the content section filled in as an include.
@@ -142,6 +145,7 @@ def __render(template_name, **kwargs):
 __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
 users = __build_database_connection(app)
+brackets = __build_brackets_manager()
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately
