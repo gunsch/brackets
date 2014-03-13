@@ -20,10 +20,23 @@ import users
 from flask import Flask, redirect, render_template, request, session
 app = Flask(__name__)
 
+#########################################################
+## Leaderboards
+
 @app.route("/")
 def index():
-  user = session['db_user'] if 'db_user' in session else None
-  return __render('leaderboard', user = user, scores = brackets.get_subreddit_scores())
+  return __render('leaderboard', scores = brackets.get_subreddit_scores())
+
+@app.route("/r/<subreddit>")
+def subreddit_leaderboard(subreddit):
+  return __render('users',
+      subreddit = subreddit,
+      scores = brackets.get_user_scores(subreddit))
+
+@app.route("/users")
+def users_leaderboard():
+  return __render('users',
+      scores = brackets.get_user_scores())
 
 #########################################################
 ## Settings handlers
@@ -41,8 +54,7 @@ def settings():
     for subreddit in subreddits
   ]
   return __render('settings',
-      subreddits_autocomplete = subreddits_autocomplete,
-      user = session['db_user'])
+      subreddits_autocomplete = subreddits_autocomplete)
 
 @app.route('/settings/update', methods = ['POST'])
 @annotations.authenticated
@@ -139,7 +151,9 @@ def __render(template_name, **kwargs):
   - **kwargs: anything to pass to the template.
   '''
   return render_template('page.tpl',
-      content_template = template_name + '.tpl', **kwargs)
+      user = session['db_user'] if 'db_user' in session else None,
+      content_template = template_name + '.tpl',
+      **kwargs)
 
 # Main methods: always invoked
 __load_config(app)

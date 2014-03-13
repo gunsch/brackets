@@ -14,7 +14,7 @@
       <tr>
         <td>{{loop.index}}</td>
         <td>
-          {{ score['subreddit'] | e }}
+          <a href="/r/{{ score['subreddit'] | e }}">{{ score['subreddit'] | e }}</a>
           (<a href="http://www.reddit.com/r/{{ score['subreddit'] | e }}">reddit</a>)
         </td>
         <td>

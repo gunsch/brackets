@@ -74,6 +74,11 @@ class RedditAuth:
   def get_subreddits(self, username):
     subreddits_json = self.__make_oauth_request(
         'https://oauth.reddit.com/subreddits/mine/subscriber').json()
+
+    # TODO: return meaningful error
+    if 'error' in subreddits_json:
+        return []
+
     subreddits_array = [
         {
             'title': subreddit['data']['title'],
