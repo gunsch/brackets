@@ -47,8 +47,9 @@ class User(dict):
       self['username'] = data
       self['subreddit'] = None
       self['bracket_id'] = None
+      self['bracket_score'] = 0
     else:
-      print repr(data)
       self['username'] = data['username']
       self['subreddit'] = data['subreddit']
       self['bracket_id'] = data['espn_bracket_id']
+      self['bracket_score'] = data['espn_bracket_score']
