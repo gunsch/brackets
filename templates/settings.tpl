@@ -23,7 +23,8 @@
         value="{{ user['bracket_id'] | e }}"
         class="form-control" placeholder="12345" required pattern="[0-9]+" />
     <span class="help-block">
-      Some text about how to find the bracket ID. Maybe paste in the URL.
+      Use the "entryID" field from your bracket's URL, e.g.
+      <code>http://games.espn.go.com/tournament-challenge-bracket/2014/en/entry?entryID=<b>659774</b></code>
     </span>
   </div>
 
