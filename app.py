@@ -67,6 +67,14 @@ def update_settings():
   try:
     user['subreddit'] = request.form['subreddit']
     user['bracket_id'] = int(request.form['bracket_id'])
+
+    bracket_name = espn.get_bracket_name(user['bracket_id'])
+    if user['username'].strip() != bracket_name.strip():
+      flash('ESPN bracket name must be the same as your reddit username: '
+          'found "%s", expected "%s"' % (bracket_name, user['username']),
+          category = 'error')
+      return redirect('/settings')
+
     if users.save(user):
       flash('Settings saved.', category = 'info');
 

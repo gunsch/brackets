@@ -50,8 +50,7 @@ class Espn(threading.Thread):
   def get_score(self, bracket_id):
     # TODO: this could fail at any step here.
     try:
-      request = requests.get(ESPN_BRACKET_URL_FORMAT % bracket_id)
-      page = BeautifulSoup(request.text)
+      page = self.__get_bracket_page(bracket_id)
       score_el = page.find(class_ = 'points_CurrentSegment')
       score = score_el.get_text()
       # >1000 scores have commas
@@ -59,3 +58,15 @@ class Espn(threading.Thread):
     except:
       # Lazy hack. Easy way to notice something is wrong though.
       return -1
+
+  def get_bracket_name(self, bracket_id):
+    try:
+      page = self.__get_bracket_page(bracket_id)
+      name_el = page.find(class_ = 'entryName')
+      return name_el.get_text()
+    except:
+      return ''
+
+  def __get_bracket_page(self, bracket_id):
+    request = requests.get(ESPN_BRACKET_URL_FORMAT % bracket_id)
+    return BeautifulSoup(request.text)
