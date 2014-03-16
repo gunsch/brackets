@@ -1,11 +1,8 @@
 # Caching todo:
-# 1) Personal subreddit list is currently slowest thing on the site. Cache,
-#    possibly with "refresh" button.
-# 2) Leaderboard pages need to be memoized. Not at the route level (caching
+# 1) Leaderboard pages need to be memoized. Not at the route level (caching
 #    logged-in UI), but at a level that either includes or takes into account
 #    the scraping time
 #
-# - server-side subreddit validation (what does this look like?)
 # - pip requirements file, setup script (run all sql)
 
 from datetime import datetime
@@ -74,6 +71,16 @@ def update_settings():
         user['username'].strip() != bracket_name.strip()):
       flash('ESPN bracket name must be the same as your reddit username: '
           'found "%s", expected "%s"' % (bracket_name, user['username']),
+          category = 'error')
+      return redirect('/settings')
+
+    user_subreddits = reddit_auth_instance.get_subreddits(
+        session['reddit_user']['name'])
+    if not filter(
+        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
+        user_subreddits):
+      flash('Subreddit "%s" not found. Ensure you are subscribed to the '
+          'subreddit and that it is typed correctly.' % user['subreddit'],
           category = 'error')
       return redirect('/settings')
 
