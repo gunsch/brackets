@@ -23,18 +23,23 @@ class Users:
   def __get(self, username):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `username` = %s''', [username])
-    return cursor.fetchone()
+    item = cursor.fetchone()
+    cursor.close()
+    return item
 
   def get_all_active(self):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
-    return map(User, cursor.fetchall())
+    data = map(User, cursor.fetchall())
+    cursor.close()
+    return data
 
   def save(self, user):
     try:
       db_user = self.__get(user['username'])
+      cursor = self.__connection.cursor()
       if db_user is not None:
-        self.__connection.cursor().execute('''
+        cursor.execute('''
           UPDATE `users` SET
               `subreddit` = %s,
               `espn_bracket_id` = %s,
@@ -44,12 +49,13 @@ class Users:
         [user['subreddit'], user['bracket_id'], user['bracket_score'], user['username']])
         return True
       else:
-        self.__connection.cursor().execute('''
+        cursor.execute('''
           INSERT INTO `users`
               (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`)
               VALUES (%s, %s, %s, %s)
         ''',
         [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score']])
+      cursor.close()
 
     except MySQLdb.IntegrityError:
       flash('Settings not saved. Your bracket ID may only be used once.',
