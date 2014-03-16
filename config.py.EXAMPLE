@@ -17,6 +17,9 @@ class settings(object):
     # Reddit settings
     MINIMUM_USER_AGE_DAYS = 30
 
+    # ESPN settings
+    SCRAPE_FREQUENCY_MINUTES = 120
+
     # Note: must match host in oauth redirect URL
     HOST = '127.0.0.1'
     PORT = 5000

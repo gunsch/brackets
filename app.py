@@ -170,8 +170,9 @@ def __build_database_connection(app):
 def __build_brackets_manager(users):
   return brackets.Brackets(users)
 
-def __build_espn_manager(users):
-  return espn.Espn(users)
+def __start_espn_manager(users):
+  espn.Espn(users,
+      scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES']).start()
 
 def __render(template_name, **kwargs):
   '''
@@ -196,7 +197,7 @@ __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
 users = __build_database_connection(app)
 brackets = __build_brackets_manager(users)
-espn = __build_espn_manager(users)
+__start_espn_manager(users)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately
