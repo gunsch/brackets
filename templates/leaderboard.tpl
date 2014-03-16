@@ -14,8 +14,7 @@
       <tr>
         <td>{{loop.index}}</td>
         <td>
-          <a href="/r/{{ score['subreddit'] | e }}">{{ score['subreddit'] | e }}</a>
-          (<a href="http://www.reddit.com/r/{{ score['subreddit'] | e }}">reddit</a>)
+          {{ macros.subreddit_link(score['subreddit']) }}
         </td>
         <td>
           <a href="/r/{{ score['subreddit'] | e }}">{{ score['users_count'] | e }}</a>

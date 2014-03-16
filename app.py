@@ -140,9 +140,8 @@ def __build_database_connection(app):
       password = app.config['MYSQL_PASSWORD'],
       database = app.config['MYSQL_DATABASE'])
 
-def __build_brackets_manager():
-  return brackets.Brackets()
-
+def __build_brackets_manager(users):
+  return brackets.Brackets(users)
 
 def __build_espn_manager(users):
   return espn.Espn(users)
@@ -165,7 +164,7 @@ def __render(template_name, **kwargs):
 __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
 users = __build_database_connection(app)
-brackets = __build_brackets_manager()
+brackets = __build_brackets_manager(users)
 espn = __build_espn_manager(users)
 
 # Startup when invoked via "python app.py"

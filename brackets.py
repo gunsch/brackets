@@ -1,12 +1,12 @@
 class Brackets:
-  def __init__(self):
-    pass
+  def __init__(self, users):
+    self.__users = users
 
   def get_user_scores(self, subreddit = None):
-    return [
-      {'user': 'navytank', 'subreddit': 'CollegeBasketball', 'bracket_id': 25, 'score': 60.2},
-      {'user': 'Concision', 'subreddit': 'CollegeBasketball', 'bracket_id': 10, 'score': 45.2},
-    ]
+    all_users = self.__users.get_all_active()
+    if subreddit is None:
+      return all_users
+    return filter(lambda user: user['subreddit'] == subreddit, all_users)
 
   def get_subreddit_scores(self):
     return [

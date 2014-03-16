@@ -1,3 +1,4 @@
+{% import 'macros.tpl' as macros %}
 <!DOCTYPE html>
 <html>
 <head>
