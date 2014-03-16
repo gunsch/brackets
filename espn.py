@@ -7,12 +7,13 @@ import requests
 import threading
 
 ESPN_BRACKET_URL_FORMAT = (
-    'http://games.espn.go.com/tournament-challenge-bracket/2014/en/entry?entryID=%d')
+    'http://games.espn.go.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
 
 class Espn(threading.Thread):
-  def __init__(self, users, scrape_frequency_minutes = 5):
+  def __init__(self, users, year = 2014, scrape_frequency_minutes = 5):
     threading.Thread.__init__(self)
     self.daemon = True
+    self.__year = year
     self.__users = users
     self.__scrape_frequency_minutes = scrape_frequency_minutes
     self.__lastrun = datetime.now()
@@ -65,8 +66,8 @@ class Espn(threading.Thread):
       name_el = page.find(class_ = 'entryName')
       return name_el.get_text()
     except:
-      return ''
+      return '[name not found]'
 
   def __get_bracket_page(self, bracket_id):
-    request = requests.get(ESPN_BRACKET_URL_FORMAT % bracket_id)
+    request = requests.get(ESPN_BRACKET_URL_FORMAT % (self.__year, bracket_id))
     return BeautifulSoup(request.text)

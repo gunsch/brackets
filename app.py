@@ -1,8 +1,10 @@
-# Things to do:
-# - Caching/rate-limiting decorators?
-# - Caching subreddit list (settings)? -- probably slowest part of the site
-# - note: caching will have to happen at a function level, with the ability to
-#   get timestamps out. imagine homepage table with "last updated".
+# Caching todo:
+# 1) Personal subreddit list is currently slowest thing on the site. Cache,
+#    possibly with "refresh" button.
+# 2) Leaderboard pages need to be memoized. Not at the route level (caching
+#    logged-in UI), but at a level that either includes or takes into account
+#    the scraping time
+#
 # - server-side subreddit validation (what does this look like?)
 # - pip requirements file, setup script (run all sql)
 
@@ -69,7 +71,8 @@ def update_settings():
     user['bracket_id'] = int(request.form['bracket_id'])
 
     bracket_name = espn.get_bracket_name(user['bracket_id'])
-    if user['username'].strip() != bracket_name.strip():
+    if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
+        user['username'].strip() != bracket_name.strip()):
       flash('ESPN bracket name must be the same as your reddit username: '
           'found "%s", expected "%s"' % (bracket_name, user['username']),
           category = 'error')
@@ -189,6 +192,7 @@ def __build_brackets_manager(users):
 
 def __start_espn_manager(users):
   espn_manager = espn.Espn(users,
+      year = app.config['YEAR'],
       scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES'])
   espn_manager.start()
   return espn_manager

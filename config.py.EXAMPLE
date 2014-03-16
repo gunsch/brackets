@@ -19,6 +19,8 @@ class settings(object):
 
     # ESPN settings
     SCRAPE_FREQUENCY_MINUTES = 120
+    YEAR = 2014
+    ENFORCE_BRACKET_NAMES_MATCH = True
 
     # Note: must match host in oauth redirect URL
     HOST = '127.0.0.1'

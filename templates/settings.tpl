@@ -39,7 +39,7 @@
     $('form').on('change blur keydown', function() {
       var isSubredditValid = subreddits.some(function(subreddit) {
         return subreddit.value == $('#subreddit').val();
-      });
+      }) || subreddits.length == 0;
       $('#subreddit').parent().toggleClass('has-error', !isSubredditValid);
       $('#subreddit').parent().toggleClass('has-success', isSubredditValid);
       $('#subreddit')[0].setCustomValidity(
