@@ -1,15 +1,18 @@
 # Things to do:
-# - users table gets espn bracket score + last updated timestamp
 # - Caching/rate-limiting decorators?
 # - Caching subreddit list (settings)?
 # - note: caching will have to happen at a function level, with the ability to
 #   get timestamps out. imagine homepage table with "last updated".
 # - flash message, particularly on login/saves
 # - server-side subreddit validation (what does this look like?)
+# - csrf
+# - check for espn page failures/changes
+# - make espn class separate thread
 #
 
 import annotations
 import brackets
+import espn
 import os
 import reddit_auth
 import sys
@@ -140,6 +143,10 @@ def __build_database_connection(app):
 def __build_brackets_manager():
   return brackets.Brackets()
 
+
+def __build_espn_manager(users):
+  return espn.Espn(users)
+
 def __render(template_name, **kwargs):
   '''
   Renders the main page, with the content section filled in as an include.
@@ -159,6 +166,7 @@ __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
 users = __build_database_connection(app)
 brackets = __build_brackets_manager()
+espn = __build_espn_manager(users)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately

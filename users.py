@@ -21,21 +21,27 @@ class Users:
     db_user = cursor.fetchone()
     return User(db_user) if db_user is not None else User(username)
 
+  def get_all_active(self):
+    cursor = self.__connection.cursor()
+    cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
+    return map(User, cursor.fetchall())
+
   def save(self, user):
     try:
       cursor = self.__connection.cursor()
       cursor.execute('''
-        INSERT INTO `users` (`username`, `subreddit`, `espn_bracket_id`)
-            VALUES (%s, %s, %s)
+        INSERT INTO `users` (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`)
+            VALUES (%s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
             `subreddit` = %s,
-            `espn_bracket_id` = %s
+            `espn_bracket_id` = %s,
+            `espn_bracket_score` = %s
       ''',
       [
           # Insert
-          user['username'], user['subreddit'], user['bracket_id'],
+          user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'],
           # Update
-          user['subreddit'], user['bracket_id']
+          user['subreddit'], user['bracket_id'], user['bracket_score']
       ])
       return True
     except:
