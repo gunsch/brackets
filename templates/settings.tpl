@@ -37,7 +37,7 @@
     $('#subreddit').autocomplete({source: subreddits});
 
     // Lazy programmer spotted
-    $('form').on('change blur keydown', function() {
+    $('form').on('change blur keydown mousedown', function() {
       var isSubredditValid = subreddits.some(function(subreddit) {
         return subreddit.value == $('#subreddit').val();
       }) || subreddits.length == 0;
