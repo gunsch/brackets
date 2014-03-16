@@ -31,7 +31,7 @@ class RedditAuth:
 
     reddit = OAuth2Session(
         self.consumer_key,
-        scope = u'identity,mysubreddits,flair',
+        scope = u'identity,mysubreddits', #,flair',
         redirect_uri = self.__build_login_redirect_uri()) 
 
     authorization_url, state = reddit.authorization_url(
@@ -73,11 +73,11 @@ class RedditAuth:
       return None
 
     # get flair right away
-    flair_response = self.__make_oauth_post(
-        'https://oauth.reddit.com/r/CollegeBasketball/api/flairselector',
-        {'name': user['name']}).json()
-    if flair_response is not None and 'current' in flair_response:
-      user['flair'] = flair_response['current']['flair_css_class']
+    #flair_response = self.__make_oauth_post(
+    #    'https://oauth.reddit.com/r/CollegeBasketball/api/flairselector',
+    #    {'name': user['name']}).json()
+    #if flair_response is not None and 'current' in flair_response:
+    #  user['flair'] = flair_response['current']['flair_css_class']
 
     return user
 
