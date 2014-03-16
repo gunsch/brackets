@@ -2,6 +2,7 @@
 <h2>Settings for {{ user['username'] }}</h2>
 
 <form role="form" method="post" action="/settings/update">
+  <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
   <div class="form-group input-subreddit">
     <label for="subreddit">Subreddit</label>
     <div class="input-group">

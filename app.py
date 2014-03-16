@@ -5,7 +5,6 @@
 #   get timestamps out. imagine homepage table with "last updated".
 # - flash message, particularly on login/saves
 # - server-side subreddit validation (what does this look like?)
-# - csrf
 # - check for espn page failures/changes
 # - make espn class separate thread
 # - pip requirements file, setup script (run all sql)
@@ -14,11 +13,13 @@ import annotations
 import brackets
 import espn
 import os
+import random
 import reddit_auth
+import string
 import sys
 import time
 import users
-  
+
 from flask import Flask, redirect, render_template, request, session
 app = Flask(__name__)
 
@@ -46,7 +47,6 @@ def users_leaderboard():
 @app.route('/settings')
 @annotations.authenticated
 def settings():
-  print(session['reddit_user'])
   subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
   subreddits_autocomplete = [
     {
@@ -108,6 +108,24 @@ def logout():
 def error_500(error):
   from traceback import format_exc
   return format_exc(), 500, {'Content-Type': 'text/plain'}
+
+# CSRF handling, mostly taken from:
+# http://flask.pocoo.org/snippets/3/
+# How the hell does Flask not include CSRF support
+@app.before_request
+def csrf_protect():
+  if request.method == 'POST':
+    token = session.get('_csrf_token', None)
+    if not token or token != request.form.get('_csrf_token'):
+      flask.abort(403)
+
+def generate_csrf_token():
+  if '_csrf_token' not in session:
+    session['_csrf_token'] = ''.join(
+        random.choice(string.ascii_letters) for _ in range(20))
+  return session['_csrf_token']
+
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
 
 ##########################################################
 ## Helper methods
