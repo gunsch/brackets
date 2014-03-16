@@ -78,7 +78,7 @@ def update_settings():
           category = 'error')
       return redirect('/settings')
 
-    if users.save(user):
+    if user_manager.save(user):
       flash('Settings saved.', category = 'info');
 
   except ValueError:
@@ -110,7 +110,7 @@ def login_authenticated():
     return redirect('/')
 
   session['reddit_user'] = user
-  session['db_user'] = users.get(user['name'])
+  session['db_user'] = user_manager.get(user['name'])
 
   # If no subreddit is set yet, go directly to settings page
   if not session['db_user']['subreddit']:
@@ -187,10 +187,10 @@ def __build_database_connection(app):
       password = app.config['MYSQL_PASSWORD'],
       database = app.config['MYSQL_DATABASE'])
 
-def __build_brackets_manager(users):
-  return brackets.Brackets(users)
+def __build_brackets_manager(user_manager):
+  return brackets.Brackets(user_manager)
 
-def __start_espn_manager(app, users):
+def __start_espn_manager(app):
   espn_manager = espn.Espn(
       # Start separate connection for ESPN, since it's on background thread
       __build_database_connection(app),
@@ -222,9 +222,9 @@ def __render(template_name, **kwargs):
 # Main methods: always invoked
 __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
-users = __build_database_connection(app)
-brackets = __build_brackets_manager(users)
-espn = __start_espn_manager(app, users)
+user_manager = __build_database_connection(app)
+brackets = __build_brackets_manager(user_manager)
+espn = __start_espn_manager(app)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately
