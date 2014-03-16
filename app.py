@@ -8,7 +8,6 @@
 # - csrf
 # - check for espn page failures/changes
 # - make espn class separate thread
-# - make bracket id unique
 # - pip requirements file, setup script (run all sql)
 
 import annotations
