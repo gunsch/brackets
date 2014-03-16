@@ -20,8 +20,7 @@ class Brackets:
     subreddits_to_display = []
     # Aggregate
     for (subreddit_name, scores) in subreddit_scores.iteritems():
-      ## TODO 3 --> 10
-      best_ten_scores = sorted(scores, reverse = True)[0:3]
+      best_ten_scores = sorted(scores, reverse = True)[0:10]
       subreddits_to_display.append({
         'subreddit': subreddit_name,
         'users_count': len(scores),

@@ -12,8 +12,9 @@
           required/>
     </div>
     <span class="help-block">
-      Your bracket will be associated with the chosen subreddit. You can change
-      your subreddit association at any time.
+      You must choose from subreddits you subscribe to.<br/>
+      Your bracket will be associated with the chosen subreddit.<br/>
+      You can change your subreddit association at any time.
     </span>
   </div>
 

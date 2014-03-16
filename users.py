@@ -2,6 +2,7 @@ from flask import flash
 import MySQLdb
 import MySQLdb.cursors
 import sys
+import traceback
 
 class Users:
   def __init__(self,
@@ -59,16 +60,15 @@ class Users:
         [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair']])
       cursor.close()
 
-    except MySQLdb.IntegrityError:
+    except MySQLdb.IntegrityError, e:
       flash('Settings not saved. Your bracket ID may only be used once.',
           category = 'error');
-      print 'IntegrityError'
+      traceback.print_exc()
       return False
 
     except:
       flash('Settings not saved. Unknown error.', category = 'error');
-      e = sys.exc_info()[0]
-      print 'Saving exception', e
+      traceback.print_exc()
       return False
 
 class User(dict):
