@@ -3,6 +3,7 @@ from random import random
 from requests_oauthlib import OAuth2Session 
 from requests.auth import HTTPBasicAuth 
 
+import annotations
 import flask
 import requests
 
@@ -81,26 +82,46 @@ class RedditAuth:
 
     return user
 
+  @annotations.session_cache('mysubreddits')
   def get_subreddits(self, username):
-    subreddits_json = self.__make_oauth_request(
-        'https://oauth.reddit.com/subreddits/mine/subscriber').json()
+    subreddits_seen = 0
+    user_subreddits = []
 
-    # TODO: return meaningful error
-    if 'error' in subreddits_json:
-      return []
+    # Load 100 (max) subreddits at a time
+    params = {'limit': 100}
+    next_subreddit_start = None
+    while True:
+      params['count'] = len(user_subreddits)
+      if next_subreddit_start is not None:
+        params['after'] = next_subreddit_start
 
-    subreddits_array = [
-        {
-            'title': subreddit['data']['title'],
-            'display_name': subreddit['data']['display_name']
-        }
-        for subreddit in subreddits_json['data']['children']
-    ]
-    return sorted(subreddits_array, key = lambda s: s['display_name'].lower())
+      subreddits_json = self.__make_oauth_request(
+          'https://oauth.reddit.com/subreddits/mine/subscriber',
+          params = params).json()
+
+      if 'error' in subreddits_json:
+        print 'Error loading subreddits:', repr(subreddits_json)
+        return None
+
+      user_subreddits.extend([
+          {
+              'title': subreddit['data']['title'],
+              'display_name': subreddit['data']['display_name']
+          }
+          for subreddit in subreddits_json['data']['children']
+      ])
+
+      if subreddits_json['data']['after']:
+        next_subreddit_start = subreddits_json['data']['after']
+      else:
+        print 'Loaded', len(user_subreddits), 'subreddits'
+        break
+    return sorted(user_subreddits, key = lambda s: s['display_name'].lower())
 
 
-  def __make_oauth_request(self, url):
+  def __make_oauth_request(self, url, params = None):
     return requests.get(url,
+        params = params,
         headers = {
           'Authorization' : 'bearer ' + flask.session['oauth_token']['access_token'],
           'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'

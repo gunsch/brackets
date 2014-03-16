@@ -13,6 +13,7 @@ from datetime import datetime
 import annotations
 import brackets
 import espn
+import json
 import os
 import random
 import reddit_auth
@@ -21,7 +22,7 @@ import sys
 import time
 import users
 
-from flask import Flask, flash, get_flashed_messages, redirect, render_template, request, session
+from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
 import flask.ext.babel
 app = Flask(__name__)
 babel = flask.ext.babel.Babel(app)
@@ -47,19 +48,17 @@ def users_leaderboard():
 #########################################################
 ## Settings handlers
 
+@app.route('/mysubreddits')
+@annotations.authenticated
+def mysubreddits():
+  return Response(json.dumps(
+      reddit_auth_instance.get_subreddits(session['reddit_user']['name'])),
+      mimetype = 'text/json')
+
 @app.route('/settings')
 @annotations.authenticated
 def settings():
-  subreddits = reddit_auth_instance.get_subreddits(session['reddit_user']['name'])
-  subreddits_autocomplete = [
-    {
-      'label': '/r/%s (%s)' % (subreddit['display_name'], subreddit['title']),
-      'value': subreddit['display_name']
-    }
-    for subreddit in subreddits
-  ]
-  return __render('settings',
-      subreddits_autocomplete = subreddits_autocomplete)
+  return __render('settings')
 
 @app.route('/settings/update', methods = ['POST'])
 @annotations.authenticated

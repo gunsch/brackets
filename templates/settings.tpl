@@ -1,4 +1,9 @@
 
+<!-- Common issue, unfortunately. Reddit seems to drop subreddit oauth randomly. -->
+<div id="settings-load-failed" class="alert alert-danger" style="display: none;">
+  Could not load subreddits. Try logging out and logging in.
+</div>
+
 <h2>Settings for {{ user['username'] }}</h2>
 
 <form role="form" method="post" action="/settings/update">
@@ -34,14 +39,34 @@
 
 <script>
   $(function() {
-    var subreddits = {{ subreddits_autocomplete | tojson | safe }};
-    $('#subreddit').autocomplete({source: subreddits});
+    var subreddits = [];
+    var loadingInputs = $('.btn-default,#subreddit');
+
+    $('.btn-default').text('Loading...');
+    loadingInputs.prop('disabled', true);
+    $.getJSON('/mysubreddits', function(server_subreddits) {
+      if (!server_subreddits) {
+        $('#settings-load-failed').show();
+        return;
+      }
+
+      subreddits = subreddits.concat(server_subreddits.map(function(subreddit) {
+        return {
+          'label': '/r/' + subreddit['display_name'] + ' (' + subreddit['title'] + ')',
+          'value': subreddit['display_name']
+        };
+      }));
+
+      loadingInputs.prop('disabled', false);
+      $('.btn-default').text('Save Settings');
+      $('#subreddit').autocomplete({source: subreddits});
+    });
 
     // Lazy programmer spotted
     $('form').on('change blur keydown mousedown', function() {
       var isSubredditValid = subreddits.some(function(subreddit) {
         return subreddit.value == $('#subreddit').val();
-      }) || subreddits.length == 0;
+      });
       $('#subreddit').parent().toggleClass('has-error', !isSubredditValid);
       $('#subreddit').parent().toggleClass('has-success', isSubredditValid);
       $('#subreddit')[0].setCustomValidity(
