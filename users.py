@@ -1,3 +1,4 @@
+from flask import flash
 import MySQLdb
 import MySQLdb.cursors
 
@@ -16,10 +17,13 @@ class Users:
     self.__connection.autocommit(True)
 
   def get(self, username):
+    db_user = self.__get(username)
+    return User(db_user) if db_user is not None else User(username)
+
+  def __get(self, username):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `username` = %s''', [username])
-    db_user = cursor.fetchone()
-    return User(db_user) if db_user is not None else User(username)
+    return cursor.fetchone()
 
   def get_all_active(self):
     cursor = self.__connection.cursor()
@@ -28,23 +32,32 @@ class Users:
 
   def save(self, user):
     try:
-      cursor = self.__connection.cursor()
-      cursor.execute('''
-        INSERT INTO `users` (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`)
-            VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            `subreddit` = %s,
-            `espn_bracket_id` = %s,
-            `espn_bracket_score` = %s
-      ''',
-      [
-          # Insert
-          user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'],
-          # Update
-          user['subreddit'], user['bracket_id'], user['bracket_score']
-      ])
-      return True
+      db_user = self.__get(user['username'])
+      if db_user is not None:
+        self.__connection.cursor().execute('''
+          UPDATE `users` SET
+              `subreddit` = %s,
+              `espn_bracket_id` = %s,
+              `espn_bracket_score` = %s
+          WHERE `username` = %s
+        ''',
+        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['username']])
+        return True
+      else:
+        self.__connection.cursor().execute('''
+          INSERT INTO `users`
+              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`)
+              VALUES (%s, %s, %s, %s)
+        ''',
+        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score']])
+
+    except MySQLdb.IntegrityError:
+      flash('Settings not saved. Your bracket ID may only be used once.',
+          category = 'error');
+      return False
+
     except:
+      flash('Settings not saved. Unknown error.', category = 'error');
       return False
 
 class User(dict):

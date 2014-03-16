@@ -1,9 +1,8 @@
 # Things to do:
 # - Caching/rate-limiting decorators?
-# - Caching subreddit list (settings)?
+# - Caching subreddit list (settings)? -- probably slowest part of the site
 # - note: caching will have to happen at a function level, with the ability to
 #   get timestamps out. imagine homepage table with "last updated".
-# - flash message, particularly on login/saves
 # - server-side subreddit validation (what does this look like?)
 # - check for espn page failures/changes
 # - make espn class separate thread
@@ -20,7 +19,7 @@ import sys
 import time
 import users
 
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, flash, get_flashed_messages, redirect, render_template, request, session
 app = Flask(__name__)
 
 #########################################################
@@ -62,9 +61,17 @@ def settings():
 @annotations.authenticated
 def update_settings():
   user = session['db_user']
-  user['subreddit'] = request.form['subreddit']
-  user['bracket_id'] = request.form['bracket_id']
-  users.save(user)
+
+  try:
+    user['subreddit'] = request.form['subreddit']
+    user['bracket_id'] = int(request.form['bracket_id'])
+    if users.save(user):
+      flash('Settings saved.', category = 'info');
+
+  except ValueError:
+    flash('Settings not saved: bracket ID must be an integer (see the '
+        'entryID=XXXXX value in your ESPN bracket URL).', category = 'error')
+
   return redirect('/settings')
 
 
@@ -79,13 +86,15 @@ def login():
 def login_authenticated():
   user = reddit_auth_instance.validate_login(request)
   if user is None:
-    return 'Login failure'
+    flash('Login error.', category = 'error')
+    return redirect('/')
 
   user_age_days = (time.time() - user['created']) / 3600 / 24;
   if user_age_days < app.config['MINIMUM_USER_AGE_DAYS']:
-    return (
+    flash(
         'Only accounts older than %d days may participate ' %
-        (app.config['MINIMUM_USER_AGE_DAYS']))
+        (app.config['MINIMUM_USER_AGE_DAYS']), category = 'error')
+    return redirect('/')
 
   session['reddit_user'] = user
   session['db_user'] = users.get(user['name'])
@@ -176,6 +185,10 @@ def __render(template_name, **kwargs):
   return render_template('page.tpl',
       user = session['db_user'] if 'db_user' in session else None,
       content_template = template_name + '.tpl',
+      messages = {
+        message_type: get_flashed_messages(category_filter = [message_type])
+            for message_type in ['error', 'info']
+      },
       **kwargs)
 
 # Main methods: always invoked

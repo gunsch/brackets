@@ -18,6 +18,8 @@
   {% include 'navigation.tpl' %}
 
   <div class="container">
+    {% include 'messages.tpl' %}
+
     {% include content_template %}
   </div>
 

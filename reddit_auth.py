@@ -6,7 +6,6 @@ from requests.auth import HTTPBasicAuth
 import flask
 import requests
 
-
 auth_url = "https://ssl.reddit.com/api/v1/authorize"
 token_endpoint = "https://ssl.reddit.com/api/v1/access_token"
 
