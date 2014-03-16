@@ -6,12 +6,6 @@
   <meta charset="utf-8">
 
   <title>Brackets!</title>
-
-  <style type="text/css">
-    /* TODO move to separate file */
-
-  </style>
-
   <link rel="stylesheet"
       href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
   <link rel="stylesheet"
