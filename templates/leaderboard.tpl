@@ -24,3 +24,5 @@
     {% endfor %}
   </tbody>
 </table>
+
+<small>Subreddit scores are determined by averaging the top ten brackets for each subreddit.</small>
