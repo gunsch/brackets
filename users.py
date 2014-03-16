@@ -1,6 +1,7 @@
 from flask import flash
 import MySQLdb
 import MySQLdb.cursors
+import sys
 
 class Users:
   def __init__(self,
@@ -61,18 +62,21 @@ class Users:
     except MySQLdb.IntegrityError:
       flash('Settings not saved. Your bracket ID may only be used once.',
           category = 'error');
+      print 'IntegrityError'
       return False
 
-    #except:
-    #  flash('Settings not saved. Unknown error.', category = 'error');
-    #  return False
+    except:
+      flash('Settings not saved. Unknown error.', category = 'error');
+      e = sys.exc_info()[0]
+      print 'Saving exception', e
+      return False
 
 class User(dict):
   def __init__(self, data = None):
     if type(data) is str or type(data) is unicode:
       self['username'] = data
-      self['subreddit'] = None
-      self['bracket_id'] = None
+      self['subreddit'] = ''
+      self['bracket_id'] = 0
       self['bracket_score'] = 0
       self['flair'] = ''
     else:
