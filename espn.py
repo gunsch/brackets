@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from datetime import datetime
+from datetime import timedelta
 import time
 
 import requests
@@ -13,20 +15,25 @@ class Espn(threading.Thread):
     self.daemon = True
     self.__users = users
     self.__scrape_frequency_minutes = scrape_frequency_minutes
+    self.__lastrun = 0
 
-  def __timestr(self, time_struct):
-    return time.strftime("%a, %d %b %Y %H:%M:%S", time_struct)
+  def __timestr(self, dt):
+    return dt.strftime("%a, %d %b %Y %H:%M:%S")
+
+  def get_last_run(self):
+    return self.__lastrun
 
   def run(self):
     while True:
-      print 'Running a scrape at', self.__timestr(time.localtime())
+      print 'Running a scrape at', self.__timestr(datetime.now())
       self.update_all()
 
-      print 'Scrape finished at', self.__timestr(time.localtime())
-      # Not worth figuring out how to do correctly
-      in_an_hour = time.localtime(time.mktime(time.localtime()) +
-          self.__scrape_frequency_minutes * 60)
+      self.__lastrun = datetime.now()
+
+      print 'Scrape finished at', self.__timestr(self.__lastrun)
+      in_an_hour = self.__lastrun + timedelta(minutes = self.__scrape_frequency_minutes)
       print 'Next scrape starts at ', self.__timestr(in_an_hour)
+
       time.sleep(self.__scrape_frequency_minutes * 60)
 
   def update_all(self):
@@ -42,9 +49,13 @@ class Espn(threading.Thread):
 
   def get_score(self, bracket_id):
     # TODO: this could fail at any step here.
-    request = requests.get(ESPN_BRACKET_URL_FORMAT % bracket_id)
-    page = BeautifulSoup(request.text)
-    score_el = page.find(class_ = 'points_CurrentSegment')
-    score = score_el.get_text()
-    # >1000 scores have commas
-    return int(score.replace(',', ''))
+    try:
+      request = requests.get(ESPN_BRACKET_URL_FORMAT % bracket_id)
+      page = BeautifulSoup(request.text)
+      score_el = page.find(class_ = 'points_CurrentSegment')
+      score = score_el.get_text()
+      # >1000 scores have commas
+      return int(score.replace(',', ''))
+    except:
+      # Lazy hack. Easy way to notice something is wrong though.
+      return -1

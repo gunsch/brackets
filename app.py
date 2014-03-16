@@ -4,9 +4,9 @@
 # - note: caching will have to happen at a function level, with the ability to
 #   get timestamps out. imagine homepage table with "last updated".
 # - server-side subreddit validation (what does this look like?)
-# - check for espn page failures/changes
-# - make espn class separate thread
 # - pip requirements file, setup script (run all sql)
+
+from datetime import datetime
 
 import annotations
 import brackets
@@ -20,7 +20,9 @@ import time
 import users
 
 from flask import Flask, flash, get_flashed_messages, redirect, render_template, request, session
+import flask.ext.babel
 app = Flask(__name__)
+babel = flask.ext.babel.Babel(app)
 
 #########################################################
 ## Leaderboards
@@ -136,6 +138,13 @@ def generate_csrf_token():
 
 app.jinja_env.globals['csrf_token'] = generate_csrf_token
 
+# Delta formatting
+def format_datetime(time):
+  delta = datetime.now() - time
+  return flask.ext.babel.format_timedelta(delta, granularity = 'minute')
+
+app.jinja_env.filters['timedelta'] = format_datetime
+
 ##########################################################
 ## Helper methods
 def __load_config(app):
@@ -171,8 +180,10 @@ def __build_brackets_manager(users):
   return brackets.Brackets(users)
 
 def __start_espn_manager(users):
-  espn.Espn(users,
-      scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES']).start()
+  espn_manager = espn.Espn(users,
+      scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES'])
+  espn_manager.start()
+  return espn_manager
 
 def __render(template_name, **kwargs):
   '''
@@ -186,6 +197,7 @@ def __render(template_name, **kwargs):
   return render_template('page.tpl',
       user = session['db_user'] if 'db_user' in session else None,
       content_template = template_name + '.tpl',
+      last_scrape_run = espn.get_last_run(),
       messages = {
         message_type: get_flashed_messages(category_filter = [message_type])
             for message_type in ['error', 'info']
@@ -197,7 +209,7 @@ __load_config(app)
 reddit_auth_instance = __build_reddit_auth_instance(app)
 users = __build_database_connection(app)
 brackets = __build_brackets_manager(users)
-__start_espn_manager(users)
+espn = __start_espn_manager(users)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately

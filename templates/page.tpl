@@ -21,6 +21,11 @@
     {% include 'messages.tpl' %}
 
     {% include content_template %}
+  
+    <div>
+      <small>Scores last updated {{ last_scrape_run | timedelta }} ago</small>
+    </div>
+
   </div>
 
 </body>
