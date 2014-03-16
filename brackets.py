@@ -25,7 +25,7 @@ class Brackets:
         'subreddit': subreddit_name,
         'users_count': len(scores),
         # Format string to go to one decimal point, back to float for sorting
-        'score': float('%.1f' % (float(sum(best_ten_scores))/len(best_ten_scores)))
+        'score': float('%.1f' % (float(sum(best_ten_scores)) / 10))
       })
 
     return sorted(subreddits_to_display, key = itemgetter('score'), reverse = True)

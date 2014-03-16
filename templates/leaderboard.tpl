@@ -25,4 +25,7 @@
   </tbody>
 </table>
 
-<small>Subreddit scores are determined by averaging the top ten brackets for each subreddit.</small>
+<small>
+  Subreddit scores are determined by averaging the top ten brackets for each subreddit.
+  <br>Zeroes are used if a subreddit has fewer than ten members.
+</small>
