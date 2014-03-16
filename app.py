@@ -112,6 +112,13 @@ def login_authenticated():
   session['reddit_user'] = user
   session['db_user'] = user_manager.get(user['name'])
 
+  # Sort of a hack: flair is only accessible via a single extra reddit request.
+  # We can't list all flairs for the subreddit. So instead, we do it once on
+  # login. This means we should save it right away.
+  if 'flair' in user:
+    session['db_user']['flair'] = user['flair']
+    user_manager.save(session['db_user'])
+
   # If no subreddit is set yet, go directly to settings page
   if not session['db_user']['subreddit']:
     return redirect('/settings')

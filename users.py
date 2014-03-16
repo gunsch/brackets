@@ -43,18 +43,19 @@ class Users:
           UPDATE `users` SET
               `subreddit` = %s,
               `espn_bracket_id` = %s,
-              `espn_bracket_score` = %s
+              `espn_bracket_score` = %s,
+              `flair` = %s
           WHERE `username` = %s
         ''',
-        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['username']])
+        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], user['username']])
         return True
       else:
         cursor.execute('''
           INSERT INTO `users`
-              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`)
-              VALUES (%s, %s, %s, %s)
+              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`, `flair`)
+              VALUES (%s, %s, %s, %s, %s)
         ''',
-        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score']])
+        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair']])
       cursor.close()
 
     except MySQLdb.IntegrityError:
@@ -62,9 +63,9 @@ class Users:
           category = 'error');
       return False
 
-    except:
-      flash('Settings not saved. Unknown error.', category = 'error');
-      return False
+    #except:
+    #  flash('Settings not saved. Unknown error.', category = 'error');
+    #  return False
 
 class User(dict):
   def __init__(self, data = None):
@@ -73,8 +74,10 @@ class User(dict):
       self['subreddit'] = None
       self['bracket_id'] = None
       self['bracket_score'] = 0
+      self['flair'] = ''
     else:
       self['username'] = data['username']
       self['subreddit'] = data['subreddit']
       self['bracket_id'] = data['espn_bracket_id']
       self['bracket_score'] = data['espn_bracket_score']
+      self['flair'] = data['flair']

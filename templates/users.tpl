@@ -8,6 +8,7 @@
   <thead>
     <tr>
       <th>#</th>
+      <th>Flair</th>
       <th>User</th>
       {% if not subreddit %}
       <th>Subreddit</th>
@@ -15,10 +16,15 @@
       <th>Score</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="user-table">
     {% for score in scores %}
       <tr>
         <td>{{loop.index}}</td>
+        <td>
+          {% if score['flair'] %}
+            <span class="flair flair-{{ score['flair'] | e }}">{{ score['flair'] | e }}</span>
+          {% endif %}
+        </td>
         <td>
           <a href="http://games.espn.go.com/tournament-challenge-bracket/{{year}}/en/entry?entryID={{ score['bracket_id'] | e }}"
               >{{ score['username'] | e }}</a>

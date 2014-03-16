@@ -31,7 +31,7 @@ class RedditAuth:
 
     reddit = OAuth2Session(
         self.consumer_key,
-        scope = u'identity,mysubreddits',
+        scope = u'identity,mysubreddits,flair',
         redirect_uri = self.__build_login_redirect_uri()) 
 
     authorization_url, state = reddit.authorization_url(
@@ -50,25 +50,36 @@ class RedditAuth:
     code = request.args.get('code', '') 
     state = request.args.get('state', '')
     if flask.session['oauth_state'] != state:
-        return None
+      return None
 
     try:
-        reddit = OAuth2Session(
-            self.consumer_key,
-            state = flask.session['oauth_state'],
-            redirect_uri = self.__build_login_redirect_uri())
+      reddit = OAuth2Session(
+          self.consumer_key,
+          state = flask.session['oauth_state'],
+          redirect_uri = self.__build_login_redirect_uri())
 
-        token = reddit.fetch_token(
-            token_endpoint,
-            code = code,
-            auth = HTTPBasicAuth(self.consumer_key, self.consumer_secret))
+      token = reddit.fetch_token(
+          token_endpoint,
+          code = code,
+          auth = HTTPBasicAuth(self.consumer_key, self.consumer_secret))
     except:
-        return None
+      return None
 
     # store token for all future requests
     flask.session['oauth_token'] = token
-    return self.__make_oauth_request(
+    user = self.__make_oauth_request(
         'https://oauth.reddit.com/api/v1/me').json()
+    if user is None:
+      return None
+
+    # get flair right away
+    flair_response = self.__make_oauth_post(
+        'https://oauth.reddit.com/r/CollegeBasketball/api/flairselector',
+        {'name': user['name']}).json()
+    if flair_response is not None and 'current' in flair_response:
+      user['flair'] = flair_response['current']['flair_css_class']
+
+    return user
 
   def get_subreddits(self, username):
     subreddits_json = self.__make_oauth_request(
@@ -76,7 +87,7 @@ class RedditAuth:
 
     # TODO: return meaningful error
     if 'error' in subreddits_json:
-        return []
+      return []
 
     subreddits_array = [
         {
@@ -95,8 +106,15 @@ class RedditAuth:
           'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
         })
 
+  def __make_oauth_post(self, url, data):
+    return requests.post(url, data = data,
+        headers = {
+          'Authorization' : 'bearer ' + flask.session['oauth_token']['access_token'],
+          'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
+        })
+
   def __build_login_redirect_uri(self):
     url = 'http://' + self.host
     if self.port is not None and self.port != 80:
-        url = url + ':' + str(self.port)
+      url = url + ':' + str(self.port)
     return url + '/login/authenticated'
