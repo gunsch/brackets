@@ -15,7 +15,7 @@ class Espn(threading.Thread):
     self.daemon = True
     self.__users = users
     self.__scrape_frequency_minutes = scrape_frequency_minutes
-    self.__lastrun = 0
+    self.__lastrun = datetime.now()
 
   def __timestr(self, dt):
     return dt.strftime("%a, %d %b %Y %H:%M:%S")
