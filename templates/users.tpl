@@ -20,7 +20,7 @@
       <tr>
         <td>{{loop.index}}</td>
         <td>
-          <a href="http://games.espn.go.com/tournament-challenge-bracket/2014/en/entry?entryID={{ score['bracket_id'] | e }}"
+          <a href="http://games.espn.go.com/tournament-challenge-bracket/{{year}}/en/entry?entryID={{ score['bracket_id'] | e }}"
               >{{ score['username'] | e }}</a>
           (<a href="http://www.reddit.com/u/{{ score['username'] | e }}">reddit</a>)
         </td>

@@ -214,6 +214,7 @@ def __render(template_name, **kwargs):
         message_type: get_flashed_messages(category_filter = [message_type])
             for message_type in ['error', 'info']
       },
+      year = app.config['YEAR'],
       **kwargs)
 
 # Main methods: always invoked
