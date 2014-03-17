@@ -62,6 +62,27 @@
       $('#subreddit').autocomplete({source: subreddits});
     });
 
+    var espnLinkRegex = /entryID=(\d+)/;
+    $('#bracket_id').on('change paste', function(e) {
+      if (e.type == 'paste') {
+        try {
+          var str = e.originalEvent.clipboardData.getData('text/plain');
+          if (matches = str.match(espnLinkRegex)) {
+            $(this).val(matches[1]);
+            e.preventDefault();
+            return;
+          }
+        } catch (e) {
+          // Probably different paste API, nbd
+          return;
+        }
+      }
+
+      if (matches = $(this).val().match(espnLinkRegex)) {
+        $(this).val(matches[1]);
+      }
+    });
+
     // Lazy programmer spotted
     $('form').on('change blur keydown mousedown', function() {
       var isSubredditValid = subreddits.some(function(subreddit) {
