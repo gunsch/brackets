@@ -22,7 +22,7 @@ class RedditAuth:
     self.consumer_key = consumer_key
     self.consumer_secret = consumer_secret
 
-  @stats.record('reddit')
+  @stats.record('reddit', timing = True)
   def redirect_to_authorization_url(self):
     '''
     Builds the redirect URL and returns the response to send the user to it.
@@ -43,7 +43,7 @@ class RedditAuth:
     flask.session['oauth_state'] = state 
     return flask.redirect(authorization_url) 
 
-  @stats.record('reddit')
+  @stats.record('reddit', timing = True)
   def validate_login(self, request):
     '''
     Validates a login-handle response from reddit.
@@ -86,7 +86,7 @@ class RedditAuth:
     return user
 
   @annotations.session_cache('mysubreddits')
-  @stats.record('reddit')
+  @stats.record('reddit', timing = True)
   def get_subreddits(self, username):
     subreddits_seen = 0
     user_subreddits = []

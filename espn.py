@@ -38,7 +38,7 @@ class Espn(threading.Thread):
 
       time.sleep(self.__scrape_frequency_minutes * 60)
 
-  @stats.record('espn')
+  @stats.record('espn', timing = True)
   def update_all(self):
     users = self.__users.get_all_active()
     users_to_save = []
@@ -50,7 +50,7 @@ class Espn(threading.Thread):
     for user in users_to_save:
       self.__users.save(user)
 
-  @stats.record('espn')
+  @stats.record('espn', timing = True)
   def get_score(self, bracket_id):
     # TODO: this could fail at any step here.
     try:
@@ -64,7 +64,7 @@ class Espn(threading.Thread):
       stats.record_one('espn-update-failure')
       return -1
 
-  @stats.record('espn')
+  @stats.record('espn', timing = True)
   def get_bracket_name(self, bracket_id):
     try:
       page = self.__get_bracket_page(bracket_id)
