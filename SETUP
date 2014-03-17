@@ -1,0 +1,16 @@
+Local setup instructions:
+
+1) Create a database:
+mysql -u root -p <<< 'create database brackets'
+
+2) Build the database structure from all SQL files:
+mysql -u root -p brackets << sql/*
+
+3) Install all Python requirements:
+pip install -r requirements.txt
+
+4) Copy the config file and modify it as needed:
+cp config.py.EXAMPLE config.py
+
+5) Start the server!
+python app.py
