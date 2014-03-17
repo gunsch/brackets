@@ -5,6 +5,12 @@ class Brackets:
   def __init__(self, users):
     self.__users = users
 
+  @classmethod
+  def cmp_subreddits(cls, x, y):
+    if x['score'] != y['score']:
+      return y['score'] - x['score']
+    return y['users_count'] - x['users_count']
+
   def get_user_scores(self, subreddit = None):
     all_users = self.__users.get_all_active()
     users = all_users if subreddit is None else filter(
@@ -28,4 +34,4 @@ class Brackets:
         'score': float('%.1f' % (float(sum(best_ten_scores)) / 10))
       })
 
-    return sorted(subreddits_to_display, key = itemgetter('score'), reverse = True)
+    return sorted(subreddits_to_display, cmp = Brackets.cmp_subreddits)
