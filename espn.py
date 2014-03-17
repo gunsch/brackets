@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
+import stats
 import time
 
 import requests
@@ -37,6 +38,7 @@ class Espn(threading.Thread):
 
       time.sleep(self.__scrape_frequency_minutes * 60)
 
+  @stats.record('espn')
   def update_all(self):
     users = self.__users.get_all_active()
     users_to_save = []
@@ -48,6 +50,7 @@ class Espn(threading.Thread):
     for user in users_to_save:
       self.__users.save(user)
 
+  @stats.record('espn')
   def get_score(self, bracket_id):
     # TODO: this could fail at any step here.
     try:
@@ -58,8 +61,10 @@ class Espn(threading.Thread):
       return int(score.replace(',', ''))
     except:
       # Lazy hack. Easy way to notice something is wrong though.
+      stats.record_one('espn-update-failure')
       return -1
 
+  @stats.record('espn')
   def get_bracket_name(self, bracket_id):
     try:
       page = self.__get_bracket_page(bracket_id)

@@ -1,6 +1,7 @@
 from flask import flash
 import MySQLdb
 import MySQLdb.cursors
+import stats
 import sys
 import traceback
 
@@ -18,6 +19,7 @@ class Users:
         cursorclass = MySQLdb.cursors.DictCursor)
     self.__connection.autocommit(True)
 
+  @stats.record('users')
   def get(self, username):
     db_user = self.__get(username)
     return User(db_user) if db_user is not None else User(username)
@@ -29,6 +31,7 @@ class Users:
     cursor.close()
     return item
 
+  @stats.record('users')
   def get_all_active(self):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
@@ -36,6 +39,7 @@ class Users:
     cursor.close()
     return data
 
+  @stats.record('users')
   def save(self, user):
     try:
       db_user = self.__get(user['username'])

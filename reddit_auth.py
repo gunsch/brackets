@@ -6,6 +6,7 @@ from requests.auth import HTTPBasicAuth
 import annotations
 import flask
 import requests
+import stats
 
 auth_url = "https://ssl.reddit.com/api/v1/authorize"
 token_endpoint = "https://ssl.reddit.com/api/v1/access_token"
@@ -21,6 +22,7 @@ class RedditAuth:
     self.consumer_key = consumer_key
     self.consumer_secret = consumer_secret
 
+  @stats.record('reddit')
   def redirect_to_authorization_url(self):
     '''
     Builds the redirect URL and returns the response to send the user to it.
@@ -41,6 +43,7 @@ class RedditAuth:
     flask.session['oauth_state'] = state 
     return flask.redirect(authorization_url) 
 
+  @stats.record('reddit')
   def validate_login(self, request):
     '''
     Validates a login-handle response from reddit.
@@ -83,6 +86,7 @@ class RedditAuth:
     return user
 
   @annotations.session_cache('mysubreddits')
+  @stats.record('reddit')
   def get_subreddits(self, username):
     subreddits_seen = 0
     user_subreddits = []
@@ -118,7 +122,7 @@ class RedditAuth:
         break
     return sorted(user_subreddits, key = lambda s: s['display_name'].lower())
 
-
+  @stats.record('reddit')
   def __make_oauth_request(self, url, params = None):
     return requests.get(url,
         params = params,
@@ -127,6 +131,7 @@ class RedditAuth:
           'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
         })
 
+  @stats.record('reddit')
   def __make_oauth_post(self, url, data):
     return requests.post(url, data = data,
         headers = {

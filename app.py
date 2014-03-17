@@ -14,6 +14,7 @@ import json
 import os
 import random
 import reddit_auth
+import stats
 import string
 import sys
 import time
@@ -23,6 +24,7 @@ from flask import Flask, Response, flash, get_flashed_messages, redirect, render
 import flask.ext.babel
 app = Flask(__name__)
 babel = flask.ext.babel.Babel(app)
+stats.Stats(app)
 
 #########################################################
 ## Leaderboards
@@ -141,8 +143,13 @@ def logout():
 
 @app.errorhandler(500)
 def error_500(error):
+  stats.record_one('500')
   from traceback import format_exc
   return format_exc(), 500, {'Content-Type': 'text/plain'}
+
+@app.before_request
+def record_request():
+  stats.record_one('request')
 
 # CSRF handling, mostly taken from:
 # http://flask.pocoo.org/snippets/3/
@@ -152,6 +159,7 @@ def csrf_protect():
   if request.method == 'POST':
     token = session.get('_csrf_token', None)
     if not token or token != request.form.get('_csrf_token'):
+      stats.record_one('csrf_failure')
       flask.abort(403)
 
 def generate_csrf_token():
@@ -212,6 +220,7 @@ def __start_espn_manager(app):
   espn_manager.start()
   return espn_manager
 
+@stats.record('app')
 def __render(template_name, **kwargs):
   '''
   Renders the main page, with the content section filled in as an include.
