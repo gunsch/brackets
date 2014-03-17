@@ -24,7 +24,11 @@
     {% include content_template %}
   
     <div>
-      <small>Scores last updated {{ last_scrape_run | timedelta }} ago</small>
+      <small>
+        Scores last updated {{ last_scrape_run | timedelta }} ago
+        <br/><br/>
+        Built by /u/navytank and /u/Concision. Contribute on <a href="https://github.com/gunsch/brackets">Github!</a>
+      </small>
     </div>
 
   </div>
