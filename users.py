@@ -1,4 +1,5 @@
 from flask import flash
+from functools import wraps
 import MySQLdb
 import MySQLdb.cursors
 import stats
@@ -11,19 +12,38 @@ class Users:
       username = 'root',
       password = '',
       database = ''):
+    self.__host = host
+    self.__username = username
+    self.__password = password
+    self.__database = database
+    self.__reconnect()
+
+  def __reconnect(self):
     self.__connection = MySQLdb.connect(
-        host = host,
-        db = database,
-        user = username,
-        passwd = password,
+        host = self.__host,
+        db = self.__database,
+        user = self.__username,
+        passwd = self.__password,
         cursorclass = MySQLdb.cursors.DictCursor)
     self.__connection.autocommit(True)
+
+  def __reconnect_on_failure(fn):
+    @wraps(fn)
+    def reconnecting_fn(self, *args, **kwargs):
+      try:
+        return fn(self, *args, **kwargs)
+      except MySQLdb.OperationalError:
+        stats.record('users.mysql-failure')
+        self.__reconnect()
+        return fn(self, *args, **kwargs)
+    return reconnecting_fn
 
   @stats.record('users', timing = True)
   def get(self, username):
     db_user = self.__get(username)
     return User(db_user) if db_user is not None else User(username)
 
+  @__reconnect_on_failure
   def __get(self, username):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `username` = %s''', [username])
@@ -32,6 +52,7 @@ class Users:
     return item
 
   @stats.record('users', timing = True)
+  @__reconnect_on_failure
   def get_all_active(self):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
@@ -40,6 +61,7 @@ class Users:
     return data
 
   @stats.record('users', timing = True)
+  @__reconnect_on_failure
   def save(self, user):
     try:
       db_user = self.__get(user['username'])
