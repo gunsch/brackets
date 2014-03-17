@@ -1,10 +1,3 @@
-# Caching todo:
-# 1) Leaderboard pages need to be memoized. Not at the route level (caching
-#    logged-in UI), but at a level that either includes or takes into account
-#    the scraping time
-#
-# - pip requirements file, setup script (run all sql)
-
 from datetime import datetime
 
 import annotations

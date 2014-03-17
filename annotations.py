@@ -1,5 +1,8 @@
 from functools import wraps
 import flask
+import pickle
+import redis
+import time
 
 def authenticated(original_route_handler):
   '''
@@ -14,6 +17,32 @@ def authenticated(original_route_handler):
     else:
       return original_route_handler(*args, **kwargs)
   return new_route_handler
+
+redis_store = redis.StrictRedis()
+def redis_cache(redis_varname, cache_seconds = 10):
+  '''
+  Caches return value from the method in the named redis variable.
+  '''
+  def wrap_redis(uncached_fn):
+    @wraps(uncached_fn)
+    def cached_fn(*args, **kwargs):
+      cached_value = redis_store.get(redis_varname)
+      now = time.time()
+
+      if cached_value is not None:
+        cache_struct = pickle.loads(cached_value)
+        if now - cache_struct['cache_time'] < cache_seconds:
+          return cache_struct['value']
+
+      return_value = uncached_fn(*args, **kwargs)
+      redis_store.set(redis_varname, pickle.dumps({
+        'cache_time': now,
+        'value': return_value
+      }))
+      return return_value
+
+    return cached_fn
+  return wrap_redis
 
 def session_cache(session_varname):
   '''

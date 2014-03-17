@@ -35,6 +35,7 @@
   </div>
 
   <button type="submit" class="btn btn-default">Save Settings</button>
+  <small>Note: changes may take up to five minutes before being reflected on the site.</small>
 </form>
 
 <script>

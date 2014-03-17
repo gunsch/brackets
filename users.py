@@ -1,5 +1,6 @@
 from flask import flash
 from functools import wraps
+import annotations
 import MySQLdb
 import MySQLdb.cursors
 import stats
@@ -51,8 +52,9 @@ class Users:
     cursor.close()
     return item
 
-  @stats.record('users', timing = True)
+  @annotations.redis_cache('all_active_users', cache_seconds = 300)
   @__reconnect_on_failure
+  @stats.record('users', timing = True)
   def get_all_active(self):
     cursor = self.__connection.cursor()
     cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
@@ -60,8 +62,8 @@ class Users:
     cursor.close()
     return data
 
-  @stats.record('users', timing = True)
   @__reconnect_on_failure
+  @stats.record('users', timing = True)
   def save(self, user):
     try:
       db_user = self.__get(user['username'])
