@@ -7,8 +7,10 @@ class Brackets:
 
   @classmethod
   def cmp_subreddits(cls, x, y):
-    if x['score'] != y['score']:
-      return y['score'] - x['score']
+    if x['score'] > y['score']:
+      return -1
+    if x['score'] < y['score']:
+      return 1
     return y['users_count'] - x['users_count']
 
   def get_user_scores(self, subreddit = None):
