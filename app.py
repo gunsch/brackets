@@ -66,6 +66,9 @@ def update_settings():
   user = session['db_user']
 
   try:
+    if user['subreddit'] != request.form['subreddit']:
+      stats.record_one('users.change-subreddit')
+
     user['subreddit'] = request.form['subreddit']
     user['bracket_id'] = int(request.form['bracket_id'])
 
