@@ -1,3 +1,5 @@
+# TODO: add config settings for disabling changing preferences.
+
 from datetime import datetime
 
 import annotations
@@ -55,49 +57,49 @@ def mysubreddits():
       reddit_auth_instance.get_subreddits(session['reddit_user']['name'])),
       mimetype = 'text/json')
 
-@app.route('/settings')
-@annotations.authenticated
-def settings():
-  return __render('settings')
-
-@app.route('/settings/update', methods = ['POST'])
-@annotations.authenticated
-def update_settings():
-  user = session['db_user']
-
-  try:
-    if user['subreddit'] != request.form['subreddit']:
-      stats.record_one('users.change-subreddit')
-
-    user['subreddit'] = request.form['subreddit']
-    user['bracket_id'] = int(request.form['bracket_id'])
-
-    bracket_name = espn.get_bracket_name(user['bracket_id'])
-    if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
-        user['username'].strip() != bracket_name.strip()):
-      flash('ESPN bracket name must be the same as your reddit username: '
-          'found "%s", expected "%s"' % (bracket_name, user['username']),
-          category = 'error')
-      return redirect('/settings')
-
-    user_subreddits = reddit_auth_instance.get_subreddits(
-        session['reddit_user']['name'])
-    if not filter(
-        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
-        user_subreddits):
-      flash('Subreddit "%s" not found. Ensure you are subscribed to the '
-          'subreddit and that it is typed correctly.' % user['subreddit'],
-          category = 'error')
-      return redirect('/settings')
-
-    if user_manager.save(user):
-      flash('Settings saved.', category = 'info');
-
-  except ValueError:
-    flash('Settings not saved: bracket ID must be an integer (see the '
-        'entryID=XXXXX value in your ESPN bracket URL).', category = 'error')
-
-  return redirect('/settings')
+#@app.route('/settings')
+#@annotations.authenticated
+#def settings():
+#  return __render('settings')
+#
+#@app.route('/settings/update', methods = ['POST'])
+#@annotations.authenticated
+#def update_settings():
+#  user = session['db_user']
+#
+#  try:
+#    if user['subreddit'] != request.form['subreddit']:
+#      stats.record_one('users.change-subreddit')
+#
+#    user['subreddit'] = request.form['subreddit']
+#    user['bracket_id'] = int(request.form['bracket_id'])
+#
+#    bracket_name = espn.get_bracket_name(user['bracket_id'])
+#    if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
+#        user['username'].strip() != bracket_name.strip()):
+#      flash('ESPN bracket name must be the same as your reddit username: '
+#          'found "%s", expected "%s"' % (bracket_name, user['username']),
+#          category = 'error')
+#      return redirect('/settings')
+#
+#    user_subreddits = reddit_auth_instance.get_subreddits(
+#        session['reddit_user']['name'])
+#    if not filter(
+#        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
+#        user_subreddits):
+#      flash('Subreddit "%s" not found. Ensure you are subscribed to the '
+#          'subreddit and that it is typed correctly.' % user['subreddit'],
+#          category = 'error')
+#      return redirect('/settings')
+#
+#    if user_manager.save(user):
+#      flash('Settings saved.', category = 'info');
+#
+#  except ValueError:
+#    flash('Settings not saved: bracket ID must be an integer (see the '
+#        'entryID=XXXXX value in your ESPN bracket URL).', category = 'error')
+#
+#  return redirect('/settings')
 
 
 ###########################################################
@@ -132,8 +134,8 @@ def login_authenticated():
   #  user_manager.save(session['db_user'])
 
   # If no subreddit is set yet, go directly to settings page
-  if not session['db_user']['subreddit']:
-    return redirect('/settings')
+  #if not session['db_user']['subreddit']:
+  #  return redirect('/settings')
 
   return redirect('/')
 

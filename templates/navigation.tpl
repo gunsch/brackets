@@ -11,7 +11,7 @@
       <li {{ active_for('users') }}><a href="/users">Top Users</a></li>
 
       {% if user %}
-        <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li>
+        <!-- <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li> -->
         <li><a href="/logout">Logout</a></li>
       {% else %}
         <li><a href="/login">Login</a></li>
