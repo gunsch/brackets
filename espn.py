@@ -92,6 +92,9 @@ class Espn(threading.Thread):
     except:
       return '[name not found]'
 
+  def get_bracket_url(self, bracket_id):
+    return ESPN_BRACKET_URL_FORMAT % (self.__year, bracket_id)
+
   def __get_bracket_page(self, bracket_id):
-    request = requests.get(ESPN_BRACKET_URL_FORMAT % (self.__year, bracket_id))
+    request = requests.get(self.get_bracket_url(bracket_id))
     return BeautifulSoup(request.text)

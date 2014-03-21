@@ -59,6 +59,23 @@ def users_leaderboard(current_page):
       pages = (len(users) - 1) / page_size + 1,
       scores = users[start : start + page_size])
 
+@app.route('/find_self')
+@annotations.authenticated
+def find_self():
+  score = brackets.get_user_scores()
+  user = session['db_user']
+  self_index = (i for i, score in enumerate(score)
+      if score['username'] == user['username']).next()
+
+  page_size = app.config['USERS_PAGE_SIZE']
+  self_page = self_index / page_size + 1
+  return redirect(flask.url_for('users_leaderboard', current_page = self_page))
+
+@app.route('/my_bracket')
+@annotations.authenticated
+def espn_bracket():
+  return redirect(espn.get_bracket_url(session['db_user']['bracket_id']))
+
 #########################################################
 ## Control
 

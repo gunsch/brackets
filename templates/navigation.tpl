@@ -12,6 +12,8 @@
 
       {% if user %}
         <!-- <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li> -->
+        <li><a href="/find_self">Me (leaderboards)</a></li>
+        <li><a href="/my_bracket">My Bracket</a></li>
         <li><a href="/logout">Logout</a></li>
       {% else %}
         <li><a href="/login">Login</a></li>
