@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
+import dateutil.parser
+import redis
 import stats
 import time
 
@@ -11,32 +13,49 @@ ESPN_BRACKET_URL_FORMAT = (
     'http://games.espn.go.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
 
 class Espn(threading.Thread):
-  def __init__(self, users, year = 2014, scrape_frequency_minutes = 5):
+  def __init__(self, users, year = 2014):
     threading.Thread.__init__(self)
     self.daemon = True
+    self.__redis_store = redis.StrictRedis()
     self.__year = year
     self.__users = users
-    self.__scrape_frequency_minutes = scrape_frequency_minutes
-    self.__lastrun = datetime.now()
+    self.__lastrun = None
+    self.__crawl_scheduled = False
 
   def __timestr(self, dt):
     return dt.strftime("%a, %d %b %Y %H:%M:%S")
 
   def get_last_run(self):
+    if self.__lastrun is None:
+      last_crawl_text = self.__redis_store.get('EspnLastCrawl')
+      if last_crawl_text is not None:
+        self.__lastrun = dateutil.parser.parse(last_crawl_text)
+
+    if self.__lastrun is None:
+      self.__update_crawl_time()
+
     return self.__lastrun
+
+  def __update_crawl_time(self):
+    self.__lastrun = datetime.now()
+    self.__redis_store.set('EspnLastCrawl', self.__lastrun.isoformat())
+
+  def schedule_crawl(self):
+    self.__crawl_scheduled = True
 
   def run(self):
     while True:
-      print 'Running a scrape at', self.__timestr(datetime.now())
-      self.update_all()
+      # Check periodically if the scrape flag has been set
+      time.sleep(10)
+      if self.__crawl_scheduled:
+        print 'Running a scrape at', self.__timestr(datetime.now())
 
-      self.__lastrun = datetime.now()
+        self.update_all()
 
-      print 'Scrape finished at', self.__timestr(self.__lastrun)
-      in_an_hour = self.__lastrun + timedelta(minutes = self.__scrape_frequency_minutes)
-      print 'Next scrape starts at ', self.__timestr(in_an_hour)
+        self.__crawl_scheduled = False
+        self.__update_crawl_time()
 
-      time.sleep(self.__scrape_frequency_minutes * 60)
+        print 'Scrape finished at', self.__timestr(self.__lastrun)
 
   @stats.record('espn', timing = True)
   def update_all(self):

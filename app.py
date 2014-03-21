@@ -48,6 +48,15 @@ def users_leaderboard():
       scores = brackets.get_user_scores())
 
 #########################################################
+## Control
+
+@app.route('/refresh_all')
+@annotations.authenticated_admin
+def refresh_all_espn():
+  espn.schedule_crawl()
+  return 'Scheduling a refresh...'
+
+#########################################################
 ## Settings handlers
 
 @app.route('/mysubreddits')
@@ -125,6 +134,7 @@ def login_authenticated():
 
   session['reddit_user'] = user
   session['db_user'] = user_manager.get(user['name'])
+  session['is_admin'] = user['name'] in ['Concision', 'navytank']
 
   # Sort of a hack: flair is only accessible via a single extra reddit request.
   # We can't list all flairs for the subreddit. So instead, we do it once on
@@ -221,8 +231,8 @@ def __start_espn_manager(app):
   espn_manager = espn.Espn(
       # Start separate connection for ESPN, since it's on background thread
       __build_database_connection(app),
-      year = app.config['YEAR'],
-      scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES'])
+      year = app.config['YEAR'])
+      #scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES'])
   espn_manager.start()
   return espn_manager
 

@@ -10,9 +10,18 @@ def authenticated(original_route_handler):
 
   Users are returned to the index page if no valid session is present.
   '''
+  return __authenticated_handler(original_route_handler, False)
+
+def authenticated_admin(original_route_handler):
+  '''Annotates a method such that the user must be logged in and an admin.'''
+  return __authenticated_handler(original_route_handler, True)
+
+def __authenticated_handler(original_route_handler, admin):
   @wraps(original_route_handler)
   def new_route_handler(*args, **kwargs):
     if 'reddit_user' not in flask.session or 'name' not in flask.session['reddit_user']:
+      return flask.redirect('/')
+    elif admin and not ('is_admin' in flask.session and flask.session['is_admin']):
       return flask.redirect('/')
     else:
       return original_route_handler(*args, **kwargs)
