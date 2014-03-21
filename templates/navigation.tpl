@@ -20,6 +20,7 @@
 
         {% if is_admin %}
         <li><a href="/refresh_all">Trigger Bracket Refresh</a></li>
+        <li><a href="/varz">Varz</a></li>
         {% endif %}
 
         <li><a href="/logout">Logout</a></li>
