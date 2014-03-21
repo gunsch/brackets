@@ -69,13 +69,16 @@ def __render_users_page(current_page = 1, subreddit = None, users = []):
 @annotations.authenticated
 def find_self():
   score = brackets.get_user_scores()
-  user = session['db_user']
+  username = session['db_user']['username']
   self_index = (i for i, score in enumerate(score)
-      if score['username'] == user['username']).next()
+      if score['username'] == username).next()
 
   page_size = app.config['USERS_PAGE_SIZE']
   self_page = self_index / page_size + 1
-  return redirect(flask.url_for('users_leaderboard', current_page = self_page))
+  return redirect(
+      flask.url_for('users_leaderboard',
+          current_page = self_page,
+          _anchor = username))
 
 @app.route('/my_bracket')
 @annotations.authenticated
