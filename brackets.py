@@ -7,10 +7,14 @@ class Brackets:
 
   @classmethod
   def cmp_subreddits(cls, x, y):
-    if x['score'] > y['score']:
-      return -1
-    if x['score'] < y['score']:
-      return 1
+    # Highest score first
+    if x['score'] != y['score']:
+      return int(y['score'] - x['score'])
+    # If scoring has started and is tied, subs with fewer members >
+    # subs with more
+    if x['score'] > 0:
+      return x['users_count'] - y['users_count']
+    # Otherwise, just order subs by most members
     return y['users_count'] - x['users_count']
 
   def get_user_scores(self, subreddit = None):
