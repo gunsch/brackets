@@ -4,6 +4,16 @@
 <h2>Users Leaderboard</h2>
 {% endif %}
 
+{% if pages > 1 %}
+<center>
+Pages:
+{% for page in range(1, pages + 1) %}{% if not loop.first %}, {% endif %}
+<a 
+    {% if page == current_page %}style="font-weight: bold;"{% endif %}
+    href="/users/page/{{ page }}">{{ page }}</a>{% endfor %}
+</center>
+{% endif %}
+
 <table class="table table-striped">
   <thead>
     <tr>
@@ -19,7 +29,7 @@
   <tbody class="user-table">
     {% for score in scores %}
       <tr>
-        <td>{{loop.index}}</td>
+        <td>{{loop.index + start}}</td>
 <!--         <td>
           {% if score['flair'] %}
             <span class="flair flair-{{ score['flair'] | e }}">{{ score['flair'] | e }}</span>

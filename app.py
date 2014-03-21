@@ -47,10 +47,17 @@ def subreddit_leaderboard(subreddit):
       subreddit = subreddit,
       scores = brackets.get_user_scores(subreddit))
 
-@app.route("/users")
-def users_leaderboard():
+@app.route('/users/', defaults={'current_page': 1})
+@app.route('/users/page/<int:current_page>')
+def users_leaderboard(current_page):
+  users = brackets.get_user_scores()
+  page_size = app.config['USERS_PAGE_SIZE']
+  start = (current_page - 1) * page_size
   return __render('users',
-      scores = brackets.get_user_scores())
+      current_page = current_page,
+      start = start,
+      pages = (len(users) - 1) / page_size + 1,
+      scores = users[start : start + page_size])
 
 #########################################################
 ## Control

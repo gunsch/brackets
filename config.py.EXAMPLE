@@ -17,10 +17,15 @@ class settings(object):
     # Reddit settings
     MINIMUM_USER_AGE_DAYS = 30
 
+    # Display settings
+    USERS_PAGE_SIZE = 3
+
     # ESPN settings
-    SCRAPE_FREQUENCY_MINUTES = 120
     YEAR = 2014
     ENFORCE_BRACKET_NAMES_MATCH = True
+
+    # Flip once games start
+    BRACKET_CHANGES_ALLOWED = True
 
     # Note: must match host in oauth redirect URL
     HOST = '127.0.0.1'
