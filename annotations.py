@@ -54,7 +54,14 @@ def redis_cache(redis_varname, cache_seconds = 10):
       cached_value = redis_store.get(redis_varname)
       now = time.time()
 
-      if cached_value is not None:
+      force_refresh = False
+      if 'refresh' in kwargs:
+        force_refresh = kwargs['refresh']
+        del kwargs['refresh']
+        if force_refresh:
+          print 'forcing refresh in call'
+
+      if cached_value is not None and not force_refresh:
         cache_struct = pickle.loads(cached_value)
         if now - cache_struct['cache_time'] < cache_seconds:
           return cache_struct['value']

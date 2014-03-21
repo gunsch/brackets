@@ -1,5 +1,6 @@
 from flask import flash
 from functools import wraps
+from threading import Lock
 import annotations
 import MySQLdb
 import MySQLdb.cursors
@@ -18,6 +19,7 @@ class Users:
     self.__password = password
     self.__database = database
     self.__reconnect()
+    self.__lock = Lock()
 
   def __reconnect(self):
     self.__connection = MySQLdb.connect(
@@ -39,6 +41,10 @@ class Users:
         return fn(self, *args, **kwargs)
     return reconnecting_fn
 
+  def get_lock(self):
+    '''Careful. This is the raw lock.'''
+    return self.__lock
+
   @stats.record('users', timing = True)
   def get(self, username):
     db_user = self.__get(username)
@@ -56,10 +62,11 @@ class Users:
   @__reconnect_on_failure
   @stats.record('users', timing = True)
   def get_all_active(self):
-    cursor = self.__connection.cursor()
-    cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
-    data = map(User, cursor.fetchall())
-    cursor.close()
+    with self.get_lock():
+      cursor = self.__connection.cursor()
+      cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
+      data = map(User, cursor.fetchall())
+      cursor.close()
     return data
 
   @__reconnect_on_failure

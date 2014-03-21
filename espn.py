@@ -66,8 +66,12 @@ class Espn(threading.Thread):
       if score != user['bracket_score']:
         user['bracket_score'] = score
         users_to_save.append(user)
-    for user in users_to_save:
-      self.__users.save(user)
+
+    with self.__users.get_lock():
+      for user in users_to_save:
+        self.__users.save(user)
+
+    self.__users.get_all_active(refresh = True)
 
   @stats.record('espn', timing = True)
   def get_score(self, bracket_id):
