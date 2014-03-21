@@ -11,9 +11,12 @@
       <li {{ active_for('users') }}><a href="/users">Top Users</a></li>
 
       {% if user %}
-        <!-- <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li> -->
-        <li><a href="/find_self">Me (leaderboards)</a></li>
-        <li><a href="/my_bracket">My Bracket</a></li>
+        {% if bracket_changes_allowed %}
+          <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li>
+        {% else %}
+          <li><a href="/find_self">Me (leaderboards)</a></li>
+          <li><a href="/my_bracket">My Bracket</a></li>
+        {% endif %}
         <li><a href="/logout">Logout</a></li>
       {% else %}
         <li><a href="/login">Login</a></li>
