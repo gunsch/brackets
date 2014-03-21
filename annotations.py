@@ -27,6 +27,22 @@ def __authenticated_handler(original_route_handler, admin):
       return original_route_handler(*args, **kwargs)
   return new_route_handler
 
+def enable_if(enabled):
+  '''
+  Annotates a route. If enabled, no change to the route. If disabled, all calls
+  to the route immediately redirect to root.
+  '''
+  def wrapper(original_route_handler):
+    @wraps(original_route_handler)
+    def redirect_to_root():
+      return flask.redirect('/')
+
+    if not enabled:
+      return redirect_to_root
+
+    return original_route_handler
+  return wrapper
+
 redis_store = redis.StrictRedis()
 def redis_cache(redis_varname, cache_seconds = 10):
   '''

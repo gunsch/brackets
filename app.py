@@ -5,6 +5,7 @@ from datetime import datetime
 import annotations
 import brackets
 import espn
+import helpers
 import json
 import os
 import random
@@ -13,7 +14,6 @@ import stats
 import string
 import sys
 import time
-import users
 
 from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
 from flaskext.kvsession import KVSessionExtension
@@ -28,6 +28,11 @@ stats.Stats(app)
 redis_store = RedisStore(redis.StrictRedis())
 KVSessionExtension(redis_store, app)
 
+helpers.load_config(app)
+reddit_auth_instance = helpers.build_reddit_auth_instance(app)
+user_manager = helpers.build_database_connection(app)
+brackets = helpers.build_brackets_manager(user_manager)
+espn = helpers.start_espn_manager(app)
 
 #########################################################
 ## Leaderboards
@@ -66,49 +71,51 @@ def mysubreddits():
       reddit_auth_instance.get_subreddits(session['reddit_user']['name'])),
       mimetype = 'text/json')
 
-#@app.route('/settings')
-#@annotations.authenticated
-#def settings():
-#  return __render('settings')
-#
-#@app.route('/settings/update', methods = ['POST'])
-#@annotations.authenticated
-#def update_settings():
-#  user = session['db_user']
-#
-#  try:
-#    if user['subreddit'] != request.form['subreddit']:
-#      stats.record_one('users.change-subreddit')
-#
-#    user['subreddit'] = request.form['subreddit']
-#    user['bracket_id'] = int(request.form['bracket_id'])
-#
-#    bracket_name = espn.get_bracket_name(user['bracket_id'])
-#    if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
-#        user['username'].strip() != bracket_name.strip()):
-#      flash('ESPN bracket name must be the same as your reddit username: '
-#          'found "%s", expected "%s"' % (bracket_name, user['username']),
-#          category = 'error')
-#      return redirect('/settings')
-#
-#    user_subreddits = reddit_auth_instance.get_subreddits(
-#        session['reddit_user']['name'])
-#    if not filter(
-#        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
-#        user_subreddits):
-#      flash('Subreddit "%s" not found. Ensure you are subscribed to the '
-#          'subreddit and that it is typed correctly.' % user['subreddit'],
-#          category = 'error')
-#      return redirect('/settings')
-#
-#    if user_manager.save(user):
-#      flash('Settings saved.', category = 'info');
-#
-#  except ValueError:
-#    flash('Settings not saved: bracket ID must be an integer (see the '
-#        'entryID=XXXXX value in your ESPN bracket URL).', category = 'error')
-#
-#  return redirect('/settings')
+@app.route('/settings')
+@annotations.enable_if(app.config['BRACKET_CHANGES_ALLOWED'])
+@annotations.authenticated
+def settings():
+  return __render('settings')
+
+@app.route('/settings/update', methods = ['POST'])
+@annotations.enable_if(app.config['BRACKET_CHANGES_ALLOWED'])
+@annotations.authenticated
+def update_settings():
+  user = session['db_user']
+
+  try:
+    if user['subreddit'] != request.form['subreddit']:
+      stats.record_one('users.change-subreddit')
+
+    user['subreddit'] = request.form['subreddit']
+    user['bracket_id'] = int(request.form['bracket_id'])
+
+    bracket_name = espn.get_bracket_name(user['bracket_id'])
+    if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
+        user['username'].strip() != bracket_name.strip()):
+      flash('ESPN bracket name must be the same as your reddit username: '
+          'found "%s", expected "%s"' % (bracket_name, user['username']),
+          category = 'error')
+      return redirect('/settings')
+
+    user_subreddits = reddit_auth_instance.get_subreddits(
+        session['reddit_user']['name'])
+    if not filter(
+        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
+        user_subreddits):
+      flash('Subreddit "%s" not found. Ensure you are subscribed to the '
+          'subreddit and that it is typed correctly.' % user['subreddit'],
+          category = 'error')
+      return redirect('/settings')
+
+    if user_manager.save(user):
+      flash('Settings saved.', category = 'info');
+
+  except ValueError:
+    flash('Settings not saved: bracket ID must be an integer (see the '
+        'entryID=XXXXX value in your ESPN bracket URL).', category = 'error')
+
+  return redirect('/settings')
 
 
 ###########################################################
@@ -144,8 +151,8 @@ def login_authenticated():
   #  user_manager.save(session['db_user'])
 
   # If no subreddit is set yet, go directly to settings page
-  #if not session['db_user']['subreddit']:
-  #  return redirect('/settings')
+  if not session['db_user']['subreddit']:
+    return redirect('/settings')
 
   return redirect('/')
 
@@ -193,49 +200,6 @@ def format_datetime(time):
 
 app.jinja_env.filters['timedelta'] = format_datetime
 
-##########################################################
-## Helper methods
-def __load_config(app):
-  try:
-    app.config.from_object('config.settings')
-  except ImportError:
-    sys.stderr.write('\n'.join([
-        'Could not find config file. If this is your first time running this',
-        'program, try the following:',
-        '',
-        '    cp config.py.EXAMPLE config.py',
-        '    python app.py',
-        '',
-        '',
-    ]))
-    sys.exit(-1)
-
-def __build_reddit_auth_instance(app):
-  return reddit_auth.RedditAuth(
-      host = app.config['HOST'],
-      port = app.config['PORT'],
-      consumer_key = app.config['CONSUMER_KEY'],
-      consumer_secret = app.config['CONSUMER_SECRET'])
-
-def __build_database_connection(app):
-  return users.Users(
-      host = app.config['MYSQL_HOST'],
-      username = app.config['MYSQL_USERNAME'],
-      password = app.config['MYSQL_PASSWORD'],
-      database = app.config['MYSQL_DATABASE'])
-
-def __build_brackets_manager(user_manager):
-  return brackets.Brackets(user_manager)
-
-def __start_espn_manager(app):
-  espn_manager = espn.Espn(
-      # Start separate connection for ESPN, since it's on background thread
-      __build_database_connection(app),
-      year = app.config['YEAR'])
-      #scrape_frequency_minutes = app.config['SCRAPE_FREQUENCY_MINUTES'])
-  espn_manager.start()
-  return espn_manager
-
 @stats.record('app')
 def __render(template_name, **kwargs):
   '''
@@ -256,13 +220,6 @@ def __render(template_name, **kwargs):
       },
       year = app.config['YEAR'],
       **kwargs)
-
-# Main methods: always invoked
-__load_config(app)
-reddit_auth_instance = __build_reddit_auth_instance(app)
-user_manager = __build_database_connection(app)
-brackets = __build_brackets_manager(user_manager)
-espn = __start_espn_manager(app)
 
 # Startup when invoked via "python app.py"
 # mod_wsgi runs the app separately
