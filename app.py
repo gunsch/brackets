@@ -41,16 +41,22 @@ espn = helpers.start_espn_manager(app)
 def index():
   return __render('leaderboard', scores = brackets.get_subreddit_scores())
 
-@app.route("/r/<subreddit>")
-def subreddit_leaderboard(subreddit):
-  return __render('users',
+@app.route('/r/<subreddit>', defaults={'current_page': 1})
+@app.route('/r/<subreddit>/page/<int:current_page>')
+def subreddit_leaderboard(subreddit, current_page):
+  return __render_users_page(
       subreddit = subreddit,
-      scores = brackets.get_user_scores(subreddit))
+      current_page = current_page,
+      users = brackets.get_user_scores(subreddit))
 
 @app.route('/users/', defaults={'current_page': 1})
 @app.route('/users/page/<int:current_page>')
 def users_leaderboard(current_page):
-  users = brackets.get_user_scores()
+  return __render_users_page(
+      current_page = current_page,
+      users = brackets.get_user_scores())
+
+def __render_users_page(current_page = 1, subreddit = None, users = []):
   page_size = app.config['USERS_PAGE_SIZE']
   start = (current_page - 1) * page_size
   return __render('users',
