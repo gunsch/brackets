@@ -243,6 +243,7 @@ def __render(template_name, **kwargs):
   return render_template('page.tpl',
       user = session['db_user'] if 'db_user' in session else None,
       bracket_changes_allowed = app.config['BRACKET_CHANGES_ALLOWED'],
+      is_admin = 'is_admin' in session and session['is_admin'],
       content_template = template_name + '.tpl',
       last_scrape_run = espn.get_last_run(),
       messages = {

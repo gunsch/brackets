@@ -17,6 +17,11 @@
           <li><a href="/find_self">Me (leaderboards)</a></li>
           <li><a href="/my_bracket">My Bracket</a></li>
         {% endif %}
+
+        {% if is_admin %}
+        <li><a href="/refresh_all">Trigger Bracket Refresh</a></li>
+        {% endif %}
+
         <li><a href="/logout">Logout</a></li>
       {% else %}
         <li><a href="/login">Login</a></li>
