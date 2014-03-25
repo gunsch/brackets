@@ -60,6 +60,7 @@ def __render_users_page(current_page = 1, subreddit = None, users = []):
   page_size = app.config['USERS_PAGE_SIZE']
   start = (current_page - 1) * page_size
   return __render('users',
+      subreddit = subreddit,
       current_page = current_page,
       start = start,
       pages = (len(users) - 1) / page_size + 1,

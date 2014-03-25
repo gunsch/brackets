@@ -1,7 +1,9 @@
 {% if subreddit %}
-<h2>Leaderboard for <a href="http://www.reddit.com/r/{{subreddit}}">/r/{{subreddit}}</a></h2>
+  {% set base_link = '/r/' + subreddit %}
+  <h2>Leaderboard for <a href="http://www.reddit.com/r/{{subreddit}}">/r/{{subreddit}}</a></h2>
 {% else %}
-<h2>Users Leaderboard</h2>
+  {% set base_link = '/users' %}
+  <h2>Users Leaderboard</h2>
 {% endif %}
 
 {% if pages > 1 %}
@@ -10,7 +12,7 @@ Pages:
 {% for page in range(1, pages + 1) %}{% if not loop.first %}, {% endif %}
 <a 
     {% if page == current_page %}style="font-weight: bold;"{% endif %}
-    href="/users/page/{{ page }}">{{ page }}</a>{% endfor %}
+    href="{{ base_link }}/page/{{ page }}">{{ page }}</a>{% endfor %}
 </center>
 {% endif %}
 
