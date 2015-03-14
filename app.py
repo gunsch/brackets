@@ -16,7 +16,7 @@ import sys
 import time
 
 from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
-from flaskext.kvsession import KVSessionExtension
+from flask_kvsession import KVSessionExtension
 from simplekv.memory.redisstore import RedisStore
 import flask.ext.babel
 import redis

@@ -13,13 +13,18 @@ class Users:
       host = 'localhost',
       username = 'root',
       password = '',
-      database = ''):
+      database = '',
+      year = 0):
     self.__host = host
     self.__username = username
     self.__password = password
     self.__database = database
+    self.__year = year
     self.__reconnect()
     self.__lock = Lock()
+    # Sanity check
+    if year == 0:
+      raise Exception('Year may not be empty.')
 
   def __reconnect(self):
     self.__connection = MySQLdb.connect(
@@ -48,12 +53,13 @@ class Users:
   @stats.record('users', timing = True)
   def get(self, username):
     db_user = self.__get(username)
-    return User(db_user) if db_user is not None else User(username)
+    return User(db_user) if db_user is not None else User(username, year = self.__year)
 
   @__reconnect_on_failure
   def __get(self, username):
     cursor = self.__connection.cursor()
-    cursor.execute('''SELECT * FROM `users` WHERE `username` = %s''', [username])
+    cursor.execute('''SELECT * FROM `users` WHERE `username` = %s AND `year` = %s''',
+        [username, self.__year])
     item = cursor.fetchone()
     cursor.close()
     return item
@@ -61,10 +67,13 @@ class Users:
   @annotations.redis_cache('all_active_users', cache_seconds = 300)
   @__reconnect_on_failure
   @stats.record('users', timing = True)
-  def get_all_active(self):
+  def get_all_active(self, year = 0):
+    if not year:
+      year = self.__year
     with self.get_lock():
       cursor = self.__connection.cursor()
-      cursor.execute('''SELECT * FROM `users` WHERE `espn_bracket_id` > 0''')
+      cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_bracket_id` > 0''',
+          [self.__year])
       data = map(User, cursor.fetchall())
       cursor.close()
     return data
@@ -82,17 +91,17 @@ class Users:
               `espn_bracket_id` = %s,
               `espn_bracket_score` = %s,
               `flair` = %s
-          WHERE `username` = %s
+          WHERE `username` = %s AND `year` = %s
         ''',
-        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], user['username']])
+        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], user['username'], self.__year])
         return True
       else:
         cursor.execute('''
           INSERT INTO `users`
-              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`, `flair`)
-              VALUES (%s, %s, %s, %s, %s)
+              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`, `flair`, `year`)
+              VALUES (%s, %s, %s, %s, %s, %s)
         ''',
-        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair']])
+        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], self.__year])
       cursor.close()
 
     except MySQLdb.IntegrityError, e:
@@ -107,16 +116,21 @@ class Users:
       return False
 
 class User(dict):
-  def __init__(self, data = None):
+  def __init__(self, data = None, year = 0):
     if type(data) is str or type(data) is unicode:
       self['username'] = data
       self['subreddit'] = ''
       self['bracket_id'] = 0
       self['bracket_score'] = 0
       self['flair'] = ''
+      self['year'] = year
+      # Sanity check
+      if year == 0:
+        raise Exception('No year specified for empty user.')
     else:
       self['username'] = data['username']
       self['subreddit'] = data['subreddit']
       self['bracket_id'] = data['espn_bracket_id']
       self['bracket_score'] = data['espn_bracket_score']
       self['flair'] = data['flair']
+      self['year'] = data['year']

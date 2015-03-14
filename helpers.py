@@ -33,7 +33,8 @@ def build_database_connection(app):
       host = app.config['MYSQL_HOST'],
       username = app.config['MYSQL_USERNAME'],
       password = app.config['MYSQL_PASSWORD'],
-      database = app.config['MYSQL_DATABASE'])
+      database = app.config['MYSQL_DATABASE'],
+      year = app.config['YEAR'])
 
 def build_brackets_manager(user_manager):
   return brackets.Brackets(user_manager)
