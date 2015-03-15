@@ -44,14 +44,20 @@ def enable_if(enabled):
   return wrapper
 
 redis_store = redis.StrictRedis()
-def redis_cache(redis_varname, cache_seconds = 10):
+def redis_cache(redis_varname, cache_key_args = [], cache_seconds = 10):
   '''
   Caches return value from the method in the named redis variable.
   '''
   def wrap_redis(uncached_fn):
     @wraps(uncached_fn)
     def cached_fn(*args, **kwargs):
-      cached_value = redis_store.get(redis_varname)
+      redis_key = redis_varname
+      for cache_key_arg in cache_key_args:
+        if cache_key_arg in kwargs:
+          redis_key = redis_key + '|' + cache_key_arg + '=' + str(kwargs[cache_key_arg])
+      print 'using key', redis_key
+
+      cached_value = redis_store.get(redis_key)
       now = time.time()
 
       force_refresh = False
@@ -67,7 +73,7 @@ def redis_cache(redis_varname, cache_seconds = 10):
           return cache_struct['value']
 
       return_value = uncached_fn(*args, **kwargs)
-      redis_store.set(redis_varname, pickle.dumps({
+      redis_store.set(redis_key, pickle.dumps({
         'cache_time': now,
         'value': return_value
       }))

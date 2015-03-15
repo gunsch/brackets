@@ -64,16 +64,20 @@ class Users:
     cursor.close()
     return item
 
-  @annotations.redis_cache('all_active_users', cache_seconds = 300)
+  @annotations.redis_cache('all_active_users', cache_key_args = ['year'], cache_seconds = 5)
   @__reconnect_on_failure
   @stats.record('users', timing = True)
-  def get_all_active(self, year = 0):
+  def get_all_active(self, *args, **kwargs):
+    # Kind of silly, but since the cache operates on kwargs, this is a simple
+    # way to enforce that "year" isn't passed in as an arg.
+    if len(args) > 0:
+      raise Exception('get_all_active only takes kwargs')
+    year = kwargs['year']
     if not year:
       year = self.__year
     with self.get_lock():
       cursor = self.__connection.cursor()
-      cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_bracket_id` > 0''',
-          [self.__year])
+      cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_bracket_id` > 0''', [year])
       data = map(User, cursor.fetchall())
       cursor.close()
     return data
@@ -94,7 +98,6 @@ class Users:
           WHERE `username` = %s AND `year` = %s
         ''',
         [user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], user['username'], self.__year])
-        return True
       else:
         cursor.execute('''
           INSERT INTO `users`
@@ -103,6 +106,7 @@ class Users:
         ''',
         [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], self.__year])
       cursor.close()
+      return True
 
     except MySQLdb.IntegrityError, e:
       flash('Settings not saved. Your bracket ID may only be used once.',

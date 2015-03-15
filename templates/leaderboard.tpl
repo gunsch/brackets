@@ -14,10 +14,10 @@
       <tr>
         <td>{{loop.index}}</td>
         <td>
-          {{ macros.subreddit_link(score['subreddit']) }}
+          {{ macros.subreddit_link(score['subreddit'], year) }}
         </td>
         <td>
-          <a href="/r/{{ score['subreddit'] | e }}">{{ score['users_count'] | e }}</a>
+          <a href="/{{ year }}/r/{{ score['subreddit'] | e }}">{{ score['users_count'] | e }}</a>
         </td>
         <td>{{ score['score'] | e }}</td>
       </tr>

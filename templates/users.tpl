@@ -1,8 +1,8 @@
 {% if subreddit %}
-  {% set base_link = '/r/' + subreddit %}
+  {% set base_link = year|string + '/r/' + subreddit %}
   <h2>Leaderboard for <a href="http://www.reddit.com/r/{{subreddit}}">/r/{{subreddit}}</a></h2>
 {% else %}
-  {% set base_link = '/users' %}
+  {% set base_link = year|string + '/users' %}
   <h2>Users Leaderboard</h2>
 {% endif %}
 
@@ -12,7 +12,7 @@ Pages:
 {% for page in range(1, pages + 1) %}{% if not loop.first %}, {% endif %}
 <a 
     {% if page == current_page %}style="font-weight: bold;"{% endif %}
-    href="{{ base_link }}/page/{{ page }}">{{ page }}</a>{% endfor %}
+    href="/{{ base_link }}/page/{{ page }}">{{ page }}</a>{% endfor %}
 </center>
 {% endif %}
 
@@ -46,7 +46,7 @@ Pages:
         </td>
         {% if not subreddit %}
         <td>
-          {{ macros.subreddit_link(score['subreddit']) }}
+          {{ macros.subreddit_link(score['subreddit'], year) }}
         </td>
         {% endif %}
         <td>{{ score['bracket_score'] | e }}</td>

@@ -37,26 +37,36 @@ espn = helpers.start_espn_manager(app)
 #########################################################
 ## Leaderboards
 
-@app.route("/")
-def index():
-  return __render('leaderboard', scores = brackets.get_subreddit_scores())
+@app.route("/", defaults={'year': app.config['YEAR']})
+@app.route("/<int:year>/")
+def index(year):
+  return __render(
+      'leaderboard',
+      scores = brackets.get_subreddit_scores(year),
+      year = year)
 
-@app.route('/r/<subreddit>', defaults={'current_page': 1})
-@app.route('/r/<subreddit>/page/<int:current_page>')
-def subreddit_leaderboard(subreddit, current_page):
+@app.route('/r/<subreddit>', defaults={'year': app.config['YEAR'], 'current_page': 1})
+@app.route('/r/<subreddit>/page/<int:current_page>', defaults={'year': app.config['YEAR']})
+@app.route('/<int:year>/r/<subreddit>', defaults={'current_page': 1})
+@app.route('/<int:year>/r/<subreddit>/page/<int:current_page>')
+def subreddit_leaderboard(year, subreddit, current_page):
   return __render_users_page(
       subreddit = subreddit,
       current_page = current_page,
-      users = brackets.get_user_scores(subreddit))
+      users = brackets.get_user_scores(year,subreddit = subreddit),
+      year = year)
 
-@app.route('/users/', defaults={'current_page': 1})
-@app.route('/users/page/<int:current_page>')
-def users_leaderboard(current_page):
+@app.route('/users/', defaults={'year': app.config['YEAR'], 'current_page': 1})
+@app.route('/users/page/<int:current_page>', defaults={'year': app.config['YEAR']})
+@app.route('/<int:year>/users/', defaults={'current_page': 1})
+@app.route('/<int:year>/users/page/<int:current_page>')
+def users_leaderboard(year, current_page):
   return __render_users_page(
       current_page = current_page,
-      users = brackets.get_user_scores())
+      users = brackets.get_user_scores(year),
+      year = year)
 
-def __render_users_page(current_page = 1, subreddit = None, users = []):
+def __render_users_page(current_page = 1, subreddit = None, users = [], year = 0):
   page_size = app.config['USERS_PAGE_SIZE']
   start = (current_page - 1) * page_size
   return __render('users',
@@ -64,12 +74,13 @@ def __render_users_page(current_page = 1, subreddit = None, users = []):
       current_page = current_page,
       start = start,
       pages = (len(users) - 1) / page_size + 1,
-      scores = users[start : start + page_size])
+      scores = users[start : start + page_size],
+      year = year)
 
 @app.route('/find_self')
 @annotations.authenticated
 def find_self():
-  score = brackets.get_user_scores()
+  score = brackets.get_user_scores(app.config['YEAR'])
   username = session['db_user']['username']
   self_index = (i for i, score in enumerate(score)
       if score['username'] == username).next()
@@ -254,7 +265,6 @@ def __render(template_name, **kwargs):
         message_type: get_flashed_messages(category_filter = [message_type])
             for message_type in ['error', 'info']
       },
-      year = app.config['YEAR'],
       **kwargs)
 
 # Startup when invoked via "python app.py"

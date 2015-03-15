@@ -17,16 +17,16 @@ class Brackets:
     # Otherwise, just order subs by most members
     return y['users_count'] - x['users_count']
 
-  def get_user_scores(self, subreddit = None):
-    all_users = self.__users.get_all_active()
+  def get_user_scores(self, year, subreddit = None):
+    all_users = self.__users.get_all_active(year = year)
     users = all_users if subreddit is None else filter(
         lambda user: user['subreddit'] == subreddit, all_users)
     return sorted(users, key = itemgetter('bracket_score'), reverse = True)
 
-  def get_subreddit_scores(self):
+  def get_subreddit_scores(self, year):
     subreddit_scores = defaultdict(list)
     # List of all individual bracket scores by subreddit
-    for user in self.__users.get_all_active():
+    for user in self.__users.get_all_active(year = year):
       subreddit_scores[user['subreddit']].append(user['bracket_score'])
 
     subreddits_to_display = []

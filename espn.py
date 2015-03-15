@@ -59,7 +59,7 @@ class Espn(threading.Thread):
 
   @stats.record('espn', timing = True)
   def update_all(self):
-    users = self.__users.get_all_active()
+    users = self.__users.get_all_active(year = self.__year)
     users_to_save = []
     for user in users:
       score = self.get_score(user['bracket_id'])
@@ -71,7 +71,7 @@ class Espn(threading.Thread):
       for user in users_to_save:
         self.__users.save(user)
 
-    self.__users.get_all_active(refresh = True)
+    self.__users.get_all_active(year = self.__year, refresh = True)
 
   @stats.record('espn', timing = True)
   def get_score(self, bracket_id):

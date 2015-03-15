@@ -8,8 +8,8 @@ import flask
 import requests
 import stats
 
-auth_url = "https://ssl.reddit.com/api/v1/authorize"
-token_endpoint = "https://ssl.reddit.com/api/v1/access_token"
+auth_url = "https://www.reddit.com/api/v1/authorize"
+token_endpoint = "https://www.reddit.com/api/v1/access_token"
 
 class RedditAuth:
   def __init__(self,
@@ -54,6 +54,7 @@ class RedditAuth:
     code = request.args.get('code', '') 
     state = request.args.get('state', '')
     if flask.session['oauth_state'] != state:
+      print 'Invalid oauth state in session'
       return None
 
     try:
@@ -66,7 +67,8 @@ class RedditAuth:
           token_endpoint,
           code = code,
           auth = HTTPBasicAuth(self.consumer_key, self.consumer_secret))
-    except:
+    except Exception as e:
+      print 'Failed to fetch token from reddit', e
       return None
 
     # store token for all future requests
@@ -74,6 +76,7 @@ class RedditAuth:
     user = self.__make_oauth_request(
         'https://oauth.reddit.com/api/v1/me').json()
     if user is None:
+      print 'Failed to make request to /api/v1/me'
       return None
 
     # get flair right away
