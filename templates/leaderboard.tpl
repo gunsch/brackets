@@ -1,4 +1,4 @@
-<h2>Subreddit Leaderboard</h2>
+<h2>Subreddit Leaderboard for {{ year }}</h2>
 
 <table class="table table-striped">
   <thead>
