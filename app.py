@@ -120,7 +120,7 @@ def mysubreddits():
 @annotations.enable_if(app.config['BRACKET_CHANGES_ALLOWED'])
 @annotations.authenticated
 def settings():
-  return __render('settings')
+  return __render('settings', year=app.config['YEAR'])
 
 @app.route('/settings/update', methods = ['POST'])
 @annotations.enable_if(app.config['BRACKET_CHANGES_ALLOWED'])
@@ -265,6 +265,7 @@ def __render(template_name, **kwargs):
         message_type: get_flashed_messages(category_filter = [message_type])
             for message_type in ['error', 'info']
       },
+      latest_year = app.config['YEAR'],
       **kwargs)
 
 # Startup when invoked via "python app.py"
