@@ -64,7 +64,7 @@ class Users:
     cursor.close()
     return item
 
-  @annotations.redis_cache('all_active_users', cache_key_args = ['year'], cache_seconds = 5)
+  @annotations.redis_cache('all_active_users', cache_key_args = ['year'], cache_seconds = 300)
   @__reconnect_on_failure
   @stats.record('users', timing = True)
   def get_all_active(self, *args, **kwargs):
