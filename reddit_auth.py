@@ -7,6 +7,7 @@ import annotations
 import flask
 import requests
 import stats
+import traceback
 
 auth_url = "https://www.reddit.com/api/v1/authorize"
 token_endpoint = "https://www.reddit.com/api/v1/access_token"
@@ -15,8 +16,10 @@ class RedditAuth:
   def __init__(self,
       host = '127.0.0.1',
       port = 5000,
+      user_agent = None,
       consumer_key = None,
       consumer_secret = None):
+    self.user_agent = user_agent
     self.host = host
     self.port = port
     self.consumer_key = consumer_key
@@ -65,6 +68,7 @@ class RedditAuth:
 
       token = reddit.fetch_token(
           token_endpoint,
+          headers = {'User-Agent': self.user_agent},
           code = code,
           auth = HTTPBasicAuth(self.consumer_key, self.consumer_secret))
     except Exception as e:
@@ -131,7 +135,7 @@ class RedditAuth:
         params = params,
         headers = {
           'Authorization' : 'bearer ' + flask.session['oauth_token']['access_token'],
-          'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
+          'User-Agent': self.user_agent
         })
 
   @stats.record('reddit')
@@ -139,7 +143,7 @@ class RedditAuth:
     return requests.post(url, data = data,
         headers = {
           'Authorization' : 'bearer ' + flask.session['oauth_token']['access_token'],
-          'User-Agent': 'bracket manager, by /u/Concision and /u/navytank'
+          'User-Agent': self.user_agent
         })
 
   def __build_login_redirect_uri(self):

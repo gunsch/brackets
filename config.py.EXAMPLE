@@ -13,6 +13,7 @@ class settings(object):
     # Oauth settings
     CONSUMER_SECRET = 'zjfnyzPriCZERJmapHsVeMnrGJU'
     CONSUMER_KEY = '81VexWf3Q8eXBQ'
+    USER_AGENT = 'Mozilla/5.0 (Windows; Macintosh; Android) ApfelWobkit/537.42 (Sweet, like Tomatoes)'
 
     # Reddit settings
     MINIMUM_USER_AGE_DAYS = 30
