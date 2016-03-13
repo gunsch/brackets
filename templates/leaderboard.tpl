@@ -26,6 +26,11 @@
 </table>
 
 <small>
+  {% if year >= 2016 %}
+  Subreddit scores are determined by averaging the highest-scoring half of all
+  entries for each subreddit (minimum of ten entries used for scoring).
+  {% else %}
   Subreddit scores are determined by averaging the top ten brackets for each subreddit.
+  {% endif %}
   <br>Zeroes are used if a subreddit has fewer than ten members.
 </small>
