@@ -78,7 +78,7 @@ class Espn(threading.Thread):
     # TODO: this could fail at any step here.
     try:
       page = self.__get_bracket_page(bracket_id)
-      score_el = page.find(class_ = 'points_CurrentSegment')
+      score_el = page.find(class_ = 'value points')
       score = score_el.get_text()
       # >1000 scores have commas
       return int(score.replace(',', ''))
@@ -91,7 +91,7 @@ class Espn(threading.Thread):
   def get_bracket_name(self, bracket_id):
     try:
       page = self.__get_bracket_page(bracket_id)
-      name_el = page.find(class_ = 'entryName')
+      name_el = page.find(class_ = 'entry-details-entryname')
       return name_el.get_text()
     except:
       return '[name not found]'
