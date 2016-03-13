@@ -29,6 +29,7 @@ class settings(object):
     BRACKET_CHANGES_ALLOWED = True
 
     # Note: must match host in oauth redirect URL
+    SECURE = False
     HOST = '127.0.0.1'
     PORT = 5000
 
