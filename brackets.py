@@ -20,7 +20,7 @@ class Brackets:
   def cmp_subreddits(cls, x, y):
     # Highest score first
     if x['score'] != y['score']:
-      return int(y['score'] - x['score'])
+      return 1 if y['score'] > x['score'] else -1
     # If scoring has started and is tied, subs with fewer members >
     # subs with more
     if x['score'] > 0:
