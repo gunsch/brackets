@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
+import concurrent.futures
 import dateutil.parser
 import redis
 import stats
@@ -61,11 +62,13 @@ class Espn(threading.Thread):
   def update_all(self):
     users = self.__users.get_all_active(year = self.__year)
     users_to_save = []
-    for user in users:
-      score = self.get_score(user['bracket_id'])
-      if score != user['bracket_score']:
-        user['bracket_score'] = score
-        users_to_save.append(user)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+      scores = executor.map(self.get_score, map(lambda user: user['bracket_id'], users))
+      for (score, user) in zip(scores, users):
+        if score != user['bracket_score']:
+          user['bracket_score'] = score
+          users_to_save.append(user)
 
     with self.__users.get_lock():
       for user in users_to_save:
@@ -77,6 +80,7 @@ class Espn(threading.Thread):
   def get_score(self, bracket_id):
     # TODO: this could fail at any step here.
     try:
+      print('Fetching score for', bracket_id)
       page = self.__get_bracket_page(bracket_id)
       score_el = page.find(class_ = 'value points')
       score = score_el.get_text()
