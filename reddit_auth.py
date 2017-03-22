@@ -35,11 +35,11 @@ class RedditAuth:
     Sets an oauth state token for the current session.
     '''
 
-    state = sha1(str(random())).hexdigest() 
+    state = sha1(str(random()).encode('utf-8')).hexdigest()
 
     reddit = OAuth2Session(
         self.consumer_key,
-        scope = u'identity,mysubreddits', #,flair',
+        scope = 'identity,mysubreddits', #,flair',
         redirect_uri = self.__build_login_redirect_uri()) 
 
     authorization_url, state = reddit.authorization_url(
@@ -59,7 +59,7 @@ class RedditAuth:
     code = request.args.get('code', '') 
     state = request.args.get('state', '')
     if flask.session['oauth_state'] != state:
-      print 'Invalid oauth state in session'
+      print('Invalid oauth state in session')
       return None
 
     try:
@@ -74,7 +74,7 @@ class RedditAuth:
           code = code,
           auth = HTTPBasicAuth(self.consumer_key, self.consumer_secret))
     except Exception as e:
-      print 'Failed to fetch token from reddit', e
+      print('Failed to fetch token from reddit', e)
       return None
 
     # store token for all future requests
@@ -82,7 +82,7 @@ class RedditAuth:
     user = self.__make_oauth_request(
         'https://oauth.reddit.com/api/v1/me').json()
     if user is None:
-      print 'Failed to make request to /api/v1/me'
+      print('Failed to make request to /api/v1/me')
       return None
 
     # get flair right away
@@ -113,7 +113,7 @@ class RedditAuth:
           params = params).json()
 
       if 'error' in subreddits_json:
-        print 'Error loading subreddits:', repr(subreddits_json)
+        print('Error loading subreddits:', repr(subreddits_json))
         return None
 
       user_subreddits.extend([
@@ -127,7 +127,7 @@ class RedditAuth:
       if subreddits_json['data']['after']:
         next_subreddit_start = subreddits_json['data']['after']
       else:
-        print 'Loaded', len(user_subreddits), 'subreddits'
+        print('Loaded', len(user_subreddits), 'subreddits')
         break
     return sorted(user_subreddits, key = lambda s: s['display_name'].lower())
 

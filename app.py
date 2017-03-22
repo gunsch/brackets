@@ -73,7 +73,7 @@ def __render_users_page(current_page = 1, subreddit = None, users = [], year = 0
       subreddit = subreddit,
       current_page = current_page,
       start = start,
-      pages = (len(users) - 1) / page_size + 1,
+      pages = (len(users) - 1) // page_size + 1,
       scores = users[start : start + page_size],
       year = year)
 
@@ -82,11 +82,11 @@ def __render_users_page(current_page = 1, subreddit = None, users = [], year = 0
 def find_self():
   score = brackets.get_user_scores(app.config['YEAR'])
   username = session['db_user']['username']
-  self_index = (i for i, score in enumerate(score)
-      if score['username'] == username).next()
+  self_index = next((i for i, score in enumerate(score)
+      if score['username'] == username))
 
   page_size = app.config['USERS_PAGE_SIZE']
-  self_page = self_index / page_size + 1
+  self_page = self_index // page_size + 1
   return redirect(
       flask.url_for('users_leaderboard',
           current_page = self_page,
@@ -145,9 +145,7 @@ def update_settings():
 
     user_subreddits = reddit_auth_instance.get_subreddits(
         session['reddit_user']['name'])
-    if not filter(
-        lambda subreddit: user['subreddit'].strip() == subreddit['display_name'],
-        user_subreddits):
+    if not [subreddit for subreddit in user_subreddits if user['subreddit'].strip() == subreddit['display_name']]:
       flash('Subreddit "%s" not found. Ensure you are subscribed to the '
           'subreddit and that it is typed correctly.' % user['subreddit'],
           category = 'error')
@@ -177,7 +175,7 @@ def login_authenticated():
     flash('Login error.', category = 'error')
     return redirect('/')
 
-  user_age_days = (time.time() - user['created']) / 3600 / 24;
+  user_age_days = (time.time() - user['created']) // 3600 // 24;
   if user_age_days < app.config['MINIMUM_USER_AGE_DAYS']:
     flash(
         'Only accounts older than %d days may participate ' %

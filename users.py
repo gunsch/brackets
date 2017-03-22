@@ -2,8 +2,8 @@ from flask import flash
 from functools import wraps
 from threading import Lock
 import annotations
-import MySQLdb
-import MySQLdb.cursors
+import pymysql
+import pymysql.cursors
 import stats
 import sys
 import traceback
@@ -27,12 +27,12 @@ class Users:
       raise Exception('Year may not be empty.')
 
   def __reconnect(self):
-    self.__connection = MySQLdb.connect(
+    self.__connection = pymysql.connect(
         host = self.__host,
         db = self.__database,
         user = self.__username,
         passwd = self.__password,
-        cursorclass = MySQLdb.cursors.DictCursor)
+        cursorclass = pymysql.cursors.DictCursor)
     self.__connection.autocommit(True)
 
   def __reconnect_on_failure(fn):
@@ -40,7 +40,7 @@ class Users:
     def reconnecting_fn(self, *args, **kwargs):
       try:
         return fn(self, *args, **kwargs)
-      except MySQLdb.OperationalError:
+      except pymysql.OperationalError:
         stats.record('users.mysql-failure')
         self.__reconnect()
         return fn(self, *args, **kwargs)
@@ -78,7 +78,7 @@ class Users:
     with self.get_lock():
       cursor = self.__connection.cursor()
       cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_bracket_id` > 0''', [year])
-      data = map(User, cursor.fetchall())
+      data = list(map(User, cursor.fetchall()))
       cursor.close()
     return data
 
@@ -108,7 +108,7 @@ class Users:
       cursor.close()
       return True
 
-    except MySQLdb.IntegrityError, e:
+    except pymysql.IntegrityError:
       flash('Settings not saved. Your bracket ID may only be used once.',
           category = 'error');
       traceback.print_exc()
@@ -121,7 +121,7 @@ class Users:
 
 class User(dict):
   def __init__(self, data = None, year = 0):
-    if type(data) is str or type(data) is unicode:
+    if type(data) is str:
       self['username'] = data
       self['subreddit'] = ''
       self['bracket_id'] = 0

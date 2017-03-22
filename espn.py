@@ -48,14 +48,14 @@ class Espn(threading.Thread):
       # Check periodically if the scrape flag has been set
       time.sleep(10)
       if self.__crawl_scheduled:
-        print 'Running a scrape at', self.__timestr(datetime.now())
+        print('Running a scrape at', self.__timestr(datetime.now()))
 
         self.update_all()
 
         self.__crawl_scheduled = False
         self.__update_crawl_time()
 
-        print 'Scrape finished at', self.__timestr(self.__lastrun)
+        print('Scrape finished at', self.__timestr(self.__lastrun))
 
   @stats.record('espn', timing = True)
   def update_all(self):

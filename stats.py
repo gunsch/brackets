@@ -8,9 +8,9 @@ __GLOBAL_STATS_INSTANCE = None
 
 def __GLOBAL_STATS_ROUTE():
   text = []
-  for (name, value) in __GLOBAL_STATS_COUNTER.iteritems():
+  for (name, value) in __GLOBAL_STATS_COUNTER.items():
     if type(value) is list:
-      value = float(sum(value)) / len(value)
+      value = sum(value) / len(value)
     text.append('%s=%s' % (name, value))
   return flask.Response('\n'.join(sorted(text)), mimetype = 'text/plain')
 

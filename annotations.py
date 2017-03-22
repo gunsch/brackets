@@ -55,7 +55,7 @@ def redis_cache(redis_varname, cache_key_args = [], cache_seconds = 10):
       for cache_key_arg in cache_key_args:
         if cache_key_arg in kwargs:
           redis_key = redis_key + '|' + cache_key_arg + '=' + str(kwargs[cache_key_arg])
-      print 'using key', redis_key
+      print('using key', redis_key)
 
       cached_value = redis_store.get(redis_key)
       now = time.time()
@@ -65,7 +65,7 @@ def redis_cache(redis_varname, cache_key_args = [], cache_seconds = 10):
         force_refresh = kwargs['refresh']
         del kwargs['refresh']
         if force_refresh:
-          print 'forcing refresh in call'
+          print('forcing refresh in call')
 
       if cached_value is not None and not force_refresh:
         cache_struct = pickle.loads(cached_value)
