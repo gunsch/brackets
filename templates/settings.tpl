@@ -13,7 +13,7 @@
     <div class="input-group">
       <span class="input-group-addon">/r/</span>
       <input id="subreddit" name="subreddit" value="{{ user['subreddit'] | e }}"
-          type="text" class="form-control" placeholder="CollegeBasketball"
+          type="text" class="form-control" placeholder="subreddit_name"
           required/>
     </div>
     <span class="help-block">
