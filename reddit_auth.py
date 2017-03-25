@@ -9,7 +9,8 @@ import requests
 import stats
 import traceback
 
-auth_url = "https://www.reddit.com/api/v1/authorize"
+auth_url = "https://ssl.reddit.com/api/v1/authorize"
+auth_url_mobile = "https://ssl.reddit.com/api/v1/authorize.compact"
 token_endpoint = "https://www.reddit.com/api/v1/access_token"
 
 class RedditAuth:
@@ -43,7 +44,7 @@ class RedditAuth:
         redirect_uri = self.__build_login_redirect_uri()) 
 
     authorization_url, state = reddit.authorization_url(
-        auth_url,
+        auth_url_mobile if flask.request.MOBILE else auth_url,
         duration = 'permanent')
     flask.session['oauth_state'] = state 
     return flask.redirect(authorization_url) 

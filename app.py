@@ -16,6 +16,7 @@ import sys
 import time
 
 from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
+from flask.ext.mobility import Mobility
 from flask_kvsession import KVSessionExtension
 from simplekv.memory.redisstore import RedisStore
 import flask.ext.babel
@@ -24,6 +25,7 @@ import redis
 app = Flask(__name__)
 babel = flask.ext.babel.Babel(app)
 stats.Stats(app)
+Mobility(app)
 
 redis_store = RedisStore(redis.StrictRedis())
 KVSessionExtension(redis_store, app)
