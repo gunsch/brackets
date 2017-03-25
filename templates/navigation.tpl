@@ -35,12 +35,17 @@
         <li><a href="/login">Login</a></li>
       {% endif %}
 
-      {# Hardcode 2014 as first year the bracket competition ran. #}
-      {% for nav_year in range(2014, latest_year + 1) %}
-        <li
-            {% if loop.index == 1 %} style="border-left: 1px solid #ddd;" {% endif %}
-            {{ active_year(nav_year) }}><a href="/{{ nav_year }}">{{ nav_year }}</a></li>
-      {% endfor %}
+      <li class="dropdown" style="border-left: 1px solid #ddd;">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+            aria-haspopup="true" aria-expanded="false">{{year}}
+            <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          {# Hardcode 2014 as first year the bracket competition ran. #}
+          {% for nav_year in range(latest_year, 2013, -1) %}
+            <li {{ active_year(nav_year) }}><a href="/{{ nav_year }}">{{ nav_year }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
     </ul>
   </div>
 </nav>
