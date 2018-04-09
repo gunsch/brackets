@@ -37,17 +37,9 @@ Pages:
             <span class="flair flair-{{ score['flair'] | e }}">{{ score['flair'] | e }}</span>
           {% endif %}
         </td> -->
-        <td>
-          <a
-              name="{{ score['username'] | e }}"
-              href="http://games.espn.go.com/tournament-challenge-bracket/{{year}}/en/entry?entryID={{ score['bracket_id'] | e }}"
-              >{{ score['username'] | e }}</a>
-          (<a href="http://www.reddit.com/u/{{ score['username'] | e }}">reddit</a>)
-        </td>
+        <td>{{ macros.user_link(score['username'], score['bracket_id'], year) }}</td>
         {% if not subreddit %}
-        <td>
-          {{ macros.subreddit_link(score['subreddit'], year) }}
-        </td>
+        <td>{{ macros.subreddit_link(score['subreddit'], year) }}</td>
         {% endif %}
         <td>{{ score['bracket_score'] | e }}</td>
       </tr>

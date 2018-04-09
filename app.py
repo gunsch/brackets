@@ -79,6 +79,14 @@ def __render_users_page(current_page = 1, subreddit = None, users = [], year = 0
       scores = users[start : start + page_size],
       year = year)
 
+@app.route('/<int:year>/results')
+@annotations.authenticated_admin
+def render_final_results(year):
+    return __render(
+      'final_results',
+      scores = brackets.get_subreddit_winners(year),
+      year = year)
+
 @app.route('/find_self')
 @annotations.authenticated
 def find_self():

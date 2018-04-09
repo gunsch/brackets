@@ -54,3 +54,30 @@ class Brackets:
 
     return sorted(subreddits_to_display,
                   key = cmp_to_key(Brackets.cmp_subreddits))
+
+  def get_subreddit_winners(self, year):
+    '''Returns the highest-scoring users per subreddit.
+
+    Each entry corresponds to one user/subreddit, which includes:
+    *  The user object itself
+    *  A 'count' field tacked on that describes the number of users that
+       participated for that subreddit.
+    '''
+
+    subreddit_winners = defaultdict(lambda: {'bracket_score': -1})
+    subreddit_user_counts = defaultdict(lambda: 0)
+    # List of all individual bracket scores by subreddit
+    for user in self.__users.get_all_active(year = year):
+      subreddit_user_counts[user['subreddit']] = (
+          subreddit_user_counts[user['subreddit']] + 1)
+      if (subreddit_winners[user['subreddit']]['bracket_score'] < 
+          user['bracket_score']):
+        subreddit_winners[user['subreddit']] = user
+
+    for subreddit, count in subreddit_user_counts.items():
+      subreddit_winners[subreddit]['count'] = count
+
+    return sorted(
+        list(subreddit_winners.values()),
+        key = itemgetter('count'),
+        reverse = True)

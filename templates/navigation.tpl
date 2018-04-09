@@ -26,8 +26,16 @@
         {% endif %}
 
         {% if is_admin %}
-        <li><a href="/refresh_all">Trigger Bracket Refresh</a></li>
-        <li><a href="/varz">Varz</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+              aria-haspopup="true" aria-expanded="false">Admin
+              <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/refresh_all">Trigger Bracket Refresh</a></li>
+            <li><a href="/{{year}}/results">Results</a></li>
+            <li><a href="/varz">Varz</a></li>
+          </ul>
+        </li>
         {% endif %}
 
         <li><a href="/logout">Logout</a></li>
