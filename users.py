@@ -40,7 +40,7 @@ class Users:
     def reconnecting_fn(self, *args, **kwargs):
       try:
         return fn(self, *args, **kwargs)
-      except pymysql.OperationalError:
+      except (pymysql.OperationalError, pymysql.err.InterfaceError) as err:
         stats.record('users.mysql-failure')
         self.__reconnect()
         return fn(self, *args, **kwargs)
