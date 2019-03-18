@@ -11,7 +11,7 @@ import requests
 import threading
 
 ESPN_BRACKET_URL_FORMAT = (
-    'http://games.espn.go.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
+    'http://fantasy.espn.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
 
 class Espn(threading.Thread):
   def __init__(self, users, year = 2014):
@@ -96,9 +96,14 @@ class Espn(threading.Thread):
     try:
       page = self.__get_bracket_page(bracket_id)
       name_el = page.find(class_ = 'entry-details-entryname')
-      return name_el.get_text()
-    except:
-      return '[name not found]'
+      if name_el:
+        return name_el.get_text()
+      else:
+        return '[name not found]'
+    except e:
+      print('lookup failed for bracket %s', bracket_id)
+      print(e)
+      return '[error opening bracket]'
 
   def get_bracket_url(self, bracket_id):
     return ESPN_BRACKET_URL_FORMAT % (self.__year, bracket_id)
