@@ -1,9 +1,5 @@
-# Pip/virtualenv stuff
-bin/
-include/
-lib/
-.Python
-pip-selfcheck.json
+# virtualenv
+venv/
 
 # Actual config file
 config.py
