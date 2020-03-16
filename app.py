@@ -16,14 +16,14 @@ import sys
 import time
 
 from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
-from flask.ext.mobility import Mobility
+from flask_mobility import Mobility
 from flask_kvsession import KVSessionExtension
 from simplekv.memory.redisstore import RedisStore
-import flask.ext.babel
+import flask_babel
 import redis
 
 app = Flask(__name__)
-babel = flask.ext.babel.Babel(app)
+flask_babel.Babel(app)
 stats.Stats(app)
 Mobility(app)
 
@@ -249,7 +249,7 @@ app.jinja_env.globals['csrf_token'] = generate_csrf_token
 # Delta formatting
 def format_datetime(time):
   delta = datetime.now() - time
-  return flask.ext.babel.format_timedelta(delta, granularity = 'minute')
+  return flask_babel.format_timedelta(delta, granularity = 'minute')
 
 app.jinja_env.filters['timedelta'] = format_datetime
 
