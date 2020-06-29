@@ -15,16 +15,12 @@ token_endpoint = "https://www.reddit.com/api/v1/access_token"
 
 class RedditAuth:
   def __init__(self,
-      host = '127.0.0.1',
-      port = 5000,
-      secure = False,
+      login_host = None,
       user_agent = None,
       consumer_key = None,
       consumer_secret = None):
     self.user_agent = user_agent
-    self.host = host
-    self.port = port
-    self.secure = secure
+    self.login_host = login_host
     self.consumer_key = consumer_key
     self.consumer_secret = consumer_secret
 
@@ -150,8 +146,4 @@ class RedditAuth:
         })
 
   def __build_login_redirect_uri(self):
-    url = 'https://' if self.secure else 'http://'
-    url = url + self.host
-    if self.port is not None and self.port != 80:
-      url = url + ':' + str(self.port)
-    return url + '/login/authenticated'
+    return self.login_host + '/login/authenticated'

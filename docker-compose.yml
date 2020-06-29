@@ -21,7 +21,6 @@ services:
     depends_on:
       - db
     build: .
-    # Note: must match host in oauth redirect URL
     ports:
       - "5000:80"
     restart: always

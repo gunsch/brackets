@@ -25,9 +25,7 @@ def load_config(app):
 
 def build_reddit_auth_instance(app):
   return reddit_auth.RedditAuth(
-      host = app.config['HOST'],
-      port = app.config['PORT'],
-      secure = app.config['SECURE'],
+      login_host = app.config['LOGIN_HOST'],
       user_agent = app.config['USER_AGENT'],
       consumer_key = app.config['CONSUMER_KEY'],
       consumer_secret = app.config['CONSUMER_SECRET'])
