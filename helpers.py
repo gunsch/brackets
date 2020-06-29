@@ -1,5 +1,6 @@
 import brackets
 import espn
+import os
 import users
 import reddit_auth
 import redis
@@ -11,6 +12,26 @@ import sys
 def load_config(app):
   try:
     app.config.from_object('config.settings')
+
+    # Allow overriding any specific config entry with environment variable
+    # named BRACKET_[CONFIG_NAME]. This does some hacky parsing to determine
+    # the value type, since env vars all come in as strings.
+    import config
+    config_keys = list(filter(lambda x: not x.startswith('_'), dir(config.settings)))
+    for key in config_keys:
+      env_field_name = 'BRACKET_' + key
+      if env_field_name in os.environ:
+        value = os.environ[env_field_name]
+        # Lazy-hack parsing
+        if value == 'True':
+          value = True
+        elif value == 'False':
+          value = False
+        elif value.isnumeric():
+          value = int(value)
+        app.config[key] = value
+        print('overriding', key, 'from environment')
+
   except ImportError:
     sys.stderr.write('\n'.join([
         'Could not find config file. If this is your first time running this',
