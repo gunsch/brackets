@@ -11,10 +11,10 @@ class settings(object):
     SECRET_KEY = 'Random string here'
 
     # Oauth settings
-    CONSUMER_SECRET = 'zjfnyzPriCZERJmapHsVeMnrGJU'
-    CONSUMER_KEY = '81VexWf3Q8eXBQ'
+    CONSUMER_SECRET = '7UlglBffLVrbJCKsecDN0eqHMu8'
+    CONSUMER_KEY = 'shVlzGjCRCJvaA'
     USER_AGENT = 'Mozilla/5.0 (Windows; Macintosh; Android) ApfelWobkit/537.42 (Sweet, like Tomatoes)'
-    LOGIN_HOST = 'http://127.0.0.1:5000'
+    LOGIN_HOST = 'http://localhost:5000'
 
     # Reddit settings
     MINIMUM_USER_AGE_DAYS = 30
