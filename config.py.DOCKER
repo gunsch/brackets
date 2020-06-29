@@ -1,0 +1,43 @@
+# Config README:
+#
+# Copy config.py.EXAMPLE to config.py and apply your settings. Do not attempt
+# to check it in.
+#
+# If you add a new configuration field to config.py, also add it to the .EXAMPLE
+# file.
+
+class settings(object):
+    DEBUG = True
+    SECRET_KEY = 'Random string here'
+
+    # Oauth settings
+    CONSUMER_SECRET = 'zjfnyzPriCZERJmapHsVeMnrGJU'
+    CONSUMER_KEY = '81VexWf3Q8eXBQ'
+    USER_AGENT = 'Mozilla/5.0 (Windows; Macintosh; Android) ApfelWobkit/537.42 (Sweet, like Tomatoes)'
+
+    # Reddit settings
+    MINIMUM_USER_AGE_DAYS = 30
+
+    # Display settings
+    USERS_PAGE_SIZE = 3
+
+    # ESPN settings
+    YEAR = 2019
+    ENFORCE_BRACKET_NAMES_MATCH = True
+
+    # Flip once games start
+    BRACKET_CHANGES_ALLOWED = True
+
+    SECURE = False
+    HOST = '0.0.0.0'
+    PORT = 80
+
+    # MySQL settings
+    MYSQL_HOST = 'db'
+    MYSQL_USERNAME = 'brackets'
+    MYSQL_PASSWORD = 'password'
+    MYSQL_DATABASE = 'brackets'
+
+    # Redis settings
+    REDIS_HOST = 'redis'
+    REDIS_PORT = 6379
