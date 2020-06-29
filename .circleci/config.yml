@@ -1,0 +1,16 @@
+version: 2.1
+jobs:
+ build:
+   machine: true
+   steps:
+     - checkout
+
+     # Do the actual build!
+     - run: docker build . -t brackets:latest
+
+     # Use GitHub PAT to auth to GitHub Packages, then tag and push!
+     - run: |
+         echo "$GITHUB_TOKEN" | docker login https://docker.pkg.github.com --username gunsch --password-stdin
+         TAG=0.1.$CIRCLE_BUILD_NUM
+         docker tag brackets:latest docker.pkg.github.com/gunsch/brackets/brackets-$CIRCLE_BRANCH:$TAG
+         docker push docker.pkg.github.com/gunsch/brackets/brackets-$CIRCLE_BRANCH:$TAG
