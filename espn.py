@@ -110,4 +110,4 @@ class Espn(threading.Thread):
 
   def __get_bracket_page(self, bracket_id):
     request = requests.get(self.get_bracket_url(bracket_id))
-    return BeautifulSoup(request.text)
+    return BeautifulSoup(request.text, 'html.parser')
