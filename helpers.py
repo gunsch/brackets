@@ -2,6 +2,8 @@ import brackets
 import espn
 import users
 import reddit_auth
+import redis
+import static_hack
 import sys
 
 ##########################################################
@@ -43,8 +45,14 @@ def build_brackets_manager(user_manager):
 
 def start_espn_manager(app):
   espn_manager = espn.Espn(
+      build_strict_redis(app),
       # Start separate connection for ESPN, since it's on background thread
       build_database_connection(app),
       year = app.config['YEAR'])
   espn_manager.start()
   return espn_manager
+
+def build_strict_redis(app):
+  return static_hack.get_redis_HACK(
+      callback = lambda: redis.StrictRedis(
+          host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT']))

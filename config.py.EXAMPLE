@@ -38,3 +38,7 @@ class settings(object):
     MYSQL_USERNAME = 'root'
     MYSQL_PASSWORD = ''
     MYSQL_DATABASE = 'brackets'
+
+    # Redis settings
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379

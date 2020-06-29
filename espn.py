@@ -14,10 +14,10 @@ ESPN_BRACKET_URL_FORMAT = (
     'http://fantasy.espn.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
 
 class Espn(threading.Thread):
-  def __init__(self, users, year = 2014):
+  def __init__(self, redis_store, users, year = 2014):
     threading.Thread.__init__(self)
     self.daemon = True
-    self.__redis_store = redis.StrictRedis()
+    self.__redis_store = redis_store
     self.__year = year
     self.__users = users
     self.__lastrun = None

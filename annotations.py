@@ -2,6 +2,7 @@ from functools import wraps
 import flask
 import pickle
 import redis
+import static_hack
 import time
 
 def authenticated(original_route_handler):
@@ -43,7 +44,6 @@ def enable_if(enabled):
     return original_route_handler
   return wrapper
 
-redis_store = redis.StrictRedis()
 def redis_cache(redis_varname, cache_key_args = [], cache_seconds = 10):
   '''
   Caches return value from the method in the named redis variable.
@@ -51,6 +51,7 @@ def redis_cache(redis_varname, cache_key_args = [], cache_seconds = 10):
   def wrap_redis(uncached_fn):
     @wraps(uncached_fn)
     def cached_fn(*args, **kwargs):
+      redis_store = static_hack.get_redis_HACK()
       redis_key = redis_varname
       for cache_key_arg in cache_key_args:
         if cache_key_arg in kwargs:

@@ -27,10 +27,10 @@ flask_babel.Babel(app)
 stats.Stats(app)
 Mobility(app)
 
-redis_store = RedisStore(redis.StrictRedis())
+helpers.load_config(app)
+redis_store = RedisStore(helpers.build_strict_redis(app))
 KVSessionExtension(redis_store, app)
 
-helpers.load_config(app)
 reddit_auth_instance = helpers.build_reddit_auth_instance(app)
 user_manager = helpers.build_database_connection(app)
 brackets = helpers.build_brackets_manager(user_manager)
