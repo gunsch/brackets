@@ -19,6 +19,7 @@ services:
   web:
     depends_on:
       - db
+      - redis
     build: .
     ports:
       - "5000:80"
