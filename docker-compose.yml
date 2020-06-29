@@ -5,6 +5,7 @@ services:
     image: mysql:5.7
     volumes:
       - ./sql:/docker-entrypoint-initdb.d/
+      - mysql_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_DATABASE: brackets
