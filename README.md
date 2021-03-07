@@ -15,11 +15,18 @@ Run the following:
 # One time: set up a virtualenv
 python3 -m venv ./venv/
 source venv/bin/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
+
+# One-time: create a database and populate the schema
+mysql -u root -p <<< 'create database brackets'
+cat sql/* | mysql -u root brackets
+
+# One-time: copy the config file, modify it as needed
+cp config.py.EXAMPLE config.py
 
 # Every time: activate the venv, then start
 source venv/bin/activate
-python app.py
+python3 app.py
 ```
 
 ## Dependencies
