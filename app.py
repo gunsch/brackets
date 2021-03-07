@@ -1,5 +1,3 @@
-# TODO: add config settings for disabling changing preferences.
-
 from datetime import datetime
 
 import annotations
