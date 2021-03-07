@@ -49,7 +49,7 @@
             <span class="caret"></span></a>
         <ul class="dropdown-menu">
           {# Hardcode 2014 as first year the bracket competition ran. #}
-          {% for nav_year in range(latest_year, 2013, -1) %}
+          {% for nav_year in years_rendered %}
             <li {{ active_year(nav_year) }}><a href="/{{ nav_year }}">{{ nav_year }}</a></li>
           {% endfor %}
         </ul>

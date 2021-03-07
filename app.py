@@ -263,6 +263,9 @@ def __render(template_name, **kwargs):
     before loading.
   - **kwargs: anything to pass to the template.
   '''
+  # Hardcode 2014 as first year the bracket competition ran,
+  # and 2020 as an exception (didn't occur).
+  years_rendered = [y for y in range(app.config['YEAR'], 2013, -1) if y != 2020]
   return render_template('page.tpl',
       user = session['db_user'] if 'db_user' in session else None,
       bracket_changes_allowed = app.config['BRACKET_CHANGES_ALLOWED'],
@@ -273,7 +276,7 @@ def __render(template_name, **kwargs):
         message_type: get_flashed_messages(category_filter = [message_type])
             for message_type in ['error', 'info']
       },
-      latest_year = app.config['YEAR'],
+      years_rendered = years_rendered,
       **kwargs)
 
 # Startup when invoked via "python app.py"
