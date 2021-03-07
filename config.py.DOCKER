@@ -23,7 +23,7 @@ class settings(object):
     USERS_PAGE_SIZE = 3
 
     # ESPN settings
-    YEAR = 2019
+    YEAR = 2021
     ENFORCE_BRACKET_NAMES_MATCH = True
 
     # Flip once games start
