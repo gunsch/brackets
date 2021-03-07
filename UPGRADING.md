@@ -6,6 +6,14 @@
     docker exec CONTAINER_ID /usr/bin/mysqldump -u root --password=password brackets > backups/brackets-$(date +%Y).sql
     ```
 
-1.  Update [config.py.DOCKER](config.py.DOCKER) in this repository, setting `YEAR` and flipping `BRACKET_CHANGES_ALLOWED` to 'True' (until the tournament begins).
+1.  Update the brackets environment varfile on the destination host, setting `YEAR` and flipping `BRACKET_CHANGES_ALLOWED` to 'True' (until the tournament begins).
 
-    CI/CD will automatically rebuild, redeploy, and restart.
+    ```bash
+    vi /srv/brackets/env
+    ```
+
+1.  Restart the site:
+
+    ```bash
+    sudo systemctl restart docker-gunsch-brackets.service
+    ```
