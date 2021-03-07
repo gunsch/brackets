@@ -3,32 +3,9 @@
 1.  On server, back up current database:
 
     ```bash
-    mysqldump -u root -p brackets > backups/brackets-$(date +%Y).sql
+    docker exec CONTAINER_ID /usr/bin/mysqldump -u root --password=password brackets > backups/brackets-$(date +%Y).sql
     ```
 
-2.  Update config, setting `YEAR` and flipping `BRACKET_CHANGES_ALLOWED`:
+1.  Update [config.py.DOCKER](config.py.DOCKER) in this repository, setting `YEAR` and flipping `BRACKET_CHANGES_ALLOWED` to 'True' (until the tournament begins).
 
-    ```bash
-    vi /srv/qxlp.net/brackets/config.py
-    ```
-
-3.  Restart server:
-
-    ```bash
-    sudo service apache2 restart
-    ```
-
-# Adding changes from locally (new machine)
-
-1.  Make sure remote is available:
-
-    ```bash
-    git remote add deploy ssh://gunsch@HOST/srv/git/brackets.git
-    ```
-
-1.  Deploy to remote
-
-    ```bash
-    git push deploy master
-    ```
-
+    CI/CD will automatically rebuild, redeploy, and restart.
