@@ -13,7 +13,7 @@ import string
 import sys
 import time
 
-from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session
+from flask import Flask, Response, flash, get_flashed_messages, redirect, render_template, request, session, url_for
 from flask_mobility import Mobility
 from flask_kvsession import KVSessionExtension
 from simplekv.memory.redisstore import RedisStore
@@ -96,7 +96,7 @@ def find_self():
   page_size = app.config['USERS_PAGE_SIZE']
   self_page = self_index // page_size + 1
   return redirect(
-      flask.url_for('users_leaderboard',
+      url_for('users_leaderboard',
           current_page = self_page,
           _anchor = username))
 
