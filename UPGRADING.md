@@ -3,7 +3,7 @@
 1.  On server, back up current database:
 
     ```bash
-    docker exec CONTAINER_ID /usr/bin/mysqldump -u root --password=password brackets > backups/brackets-$(date +%Y).sql
+    docker exec brackets_db_1 /usr/bin/mysqldump -u root --password=password brackets > backups/brackets-$(date +%Y).sql
     ```
 
 1.  Update the brackets environment varfile on the destination host, setting `YEAR` and flipping `BRACKET_CHANGES_ALLOWED` to 'True' (until the tournament begins).
