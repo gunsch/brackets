@@ -1,4 +1,10 @@
 version: 2.1
+workflows:
+  build:
+    jobs:
+      - build:
+          context:
+            - Everything
 jobs:
  build:
    machine:
