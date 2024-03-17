@@ -25,12 +25,12 @@
 
   <div class="form-group input-subreddit">
     <label for="subreddit">ESPN Bracket ID</label>
-    <input type="text" id="bracket_id" name="bracket_id"
-        value="{{ user['bracket_id'] | e }}"
-        class="form-control" placeholder="12345" required pattern="[0-9]+" />
+    <input type="text" id="new_bracket_id" name="new_bracket_id"
+        value="{{ user['new_bracket_id'] | e }}"
+        class="form-control" placeholder="f294cc50-e418-12ce-bcc5-79c97aab67f6" required pattern="([a-f0-9]+-?)+" />
     <span class="help-block">
       Use the "entryID" field from your bracket's URL, e.g.
-      <code>http://fantasy.espn.com/tournament-challenge-bracket/{{ year }}/en/entry?entryID=<b>12345</b></code>
+      <code>https://fantasy.espn.com/games/tournament-challenge-bracket-{{ year }}/bracket?id=<b>f294cc50-e418-12ce-bcc5-79c97aab67f6</b></code>
     </span>
   </div>
 
@@ -63,8 +63,8 @@
       $('#subreddit').autocomplete({source: subreddits});
     });
 
-    var espnLinkRegex = /entryID=(\d+)/;
-    $('#bracket_id').on('change paste', function(e) {
+    var espnLinkRegex = /id=([a-f0-9-]+)/;
+    $('#new_bracket_id').on('change paste', function(e) {
       if (e.type == 'paste') {
         try {
           var str = e.originalEvent.clipboardData.getData('text/plain');
@@ -94,9 +94,9 @@
       $('#subreddit')[0].setCustomValidity(
           isSubredditValid ? '' : 'Invalid subreddit');
 
-      var isBracketIdValid = $('#bracket_id')[0].checkValidity();
-      $('#bracket_id').parent().toggleClass('has-error', !isBracketIdValid);
-      $('#bracket_id').parent().toggleClass('has-success', isBracketIdValid);
+      var isBracketIdValid = $('#new_bracket_id')[0].checkValidity();
+      $('#new_bracket_id').parent().toggleClass('has-error', !isBracketIdValid);
+      $('#new_bracket_id').parent().toggleClass('has-success', isBracketIdValid);
     });
   });
 </script>

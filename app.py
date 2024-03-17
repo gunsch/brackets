@@ -103,7 +103,7 @@ def find_self():
 @app.route('/my_bracket')
 @annotations.authenticated
 def espn_bracket():
-  return redirect(espn.get_bracket_url(session['db_user']['bracket_id']))
+  return redirect(espn.get_bracket_url(session['db_user']['new_bracket_id']))
 
 #########################################################
 ## Control
@@ -141,9 +141,9 @@ def update_settings():
       stats.record_one('users.change-subreddit')
 
     user['subreddit'] = request.form['subreddit']
-    user['bracket_id'] = int(request.form['bracket_id'])
+    user['new_bracket_id'] = request.form['new_bracket_id']
 
-    bracket_name = espn.get_bracket_name(user['bracket_id'])
+    bracket_name = espn.get_bracket_name(user['new_bracket_id'])
     if (app.config.get('ENFORCE_BRACKET_NAMES_MATCH', False) and
         user['username'].strip() != bracket_name.strip()):
       flash('ESPN bracket name must be the same as your reddit username: '

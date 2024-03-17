@@ -37,7 +37,7 @@ Pages:
             <span class="flair flair-{{ score['flair'] | e }}">{{ score['flair'] | e }}</span>
           {% endif %}
         </td> -->
-        <td>{{ macros.user_link(score['username'], score['bracket_id'], year) }}</td>
+        <td>{{ macros.user_link(score['username'], score['new_bracket_id'], year) }}</td>
         {% if not subreddit %}
         <td>{{ macros.subreddit_link(score['subreddit'], year) }}</td>
         {% endif %}

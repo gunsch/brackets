@@ -11,7 +11,9 @@ import requests
 import threading
 
 ESPN_BRACKET_URL_FORMAT = (
-    'http://fantasy.espn.com/tournament-challenge-bracket/%d/en/entry?entryID=%d')
+    'https://fantasy.espn.com/games/tournament-challenge-bracket-%d/bracket?id=%s')
+ESPN_BRACKET_API_FORMAT = (
+    'https://gambit-api.fantasy.espn.com/apis/v1/challenges/tournament-challenge-bracket-%d/entries/%s?platform=chui&view=chui_default')
 
 class Espn(threading.Thread):
   def __init__(self, redis_store, users, year = 2014):
@@ -81,11 +83,9 @@ class Espn(threading.Thread):
     # TODO: this could fail at any step here.
     try:
       print('Fetching score for', bracket_id)
-      page = self.__get_bracket_page(bracket_id)
-      score_el = page.find(class_ = 'value points')
-      score = score_el.get_text()
-      # >1000 scores have commas
-      return int(score.replace(',', ''))
+      page = self.__get_bracket_json(bracket_id)
+      score = page.get('score', {}).get('overallScore', 0)
+      return score
     except:
       # Lazy hack. Easy way to notice something is wrong though.
       stats.record_one('espn-update-failure')
@@ -94,10 +94,10 @@ class Espn(threading.Thread):
   @stats.record('espn', timing = True)
   def get_bracket_name(self, bracket_id):
     try:
-      page = self.__get_bracket_page(bracket_id)
-      name_el = page.find(class_ = 'entry-details-entryname')
-      if name_el:
-        return name_el.get_text()
+      page = self.__get_bracket_json(bracket_id)
+      name = page.get('name', '')
+      if name:
+        return name
       else:
         return '[name not found]'
     except e:
@@ -106,8 +106,8 @@ class Espn(threading.Thread):
       return '[error opening bracket]'
 
   def get_bracket_url(self, bracket_id):
-    return ESPN_BRACKET_URL_FORMAT % (self.__year, bracket_id)
+    return ESPN_BRACKET_API_FORMAT % (self.__year, bracket_id)
 
-  def __get_bracket_page(self, bracket_id):
-    request = requests.get(self.get_bracket_url(bracket_id))
-    return BeautifulSoup(request.text, 'html.parser')
+  def __get_bracket_json(self, bracket_id):
+    response = requests.get(self.get_bracket_url(bracket_id))
+    return response.json()

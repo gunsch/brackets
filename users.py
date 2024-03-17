@@ -77,7 +77,7 @@ class Users:
       year = self.__year
     with self.get_lock():
       cursor = self.__connection.cursor()
-      cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_bracket_id` > 0''', [year])
+      cursor.execute('''SELECT * FROM `users` WHERE `year` = %s AND `espn_new_bracket_id` != ""''', [year])
       data = list(map(User, cursor.fetchall()))
       cursor.close()
     return data
@@ -92,19 +92,20 @@ class Users:
         cursor.execute('''
           UPDATE `users` SET
               `subreddit` = %s,
-              `espn_bracket_id` = %s,
+              `espn_bracket_id` = 0,
+              `espn_new_bracket_id` = %s
               `espn_bracket_score` = %s,
               `flair` = %s
           WHERE `username` = %s AND `year` = %s
         ''',
-        [user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], user['username'], self.__year])
+        [user['subreddit'], user['new_bracket_id'], user['bracket_score'], user['flair'], user['username'], self.__year])
       else:
         cursor.execute('''
           INSERT INTO `users`
-              (`username`, `subreddit`, `espn_bracket_id`, `espn_bracket_score`, `flair`, `year`)
-              VALUES (%s, %s, %s, %s, %s, %s)
+              (`username`, `subreddit`, `espn_bracket_id`, `espn_new_bracket_id`, `espn_bracket_score`, `flair`, `year`)
+              VALUES (%s, %s, 0, %s, %s, %s, %s)
         ''',
-        [user['username'], user['subreddit'], user['bracket_id'], user['bracket_score'], user['flair'], self.__year])
+        [user['username'], user['subreddit'], user['new_bracket_id'], user['bracket_score'], user['flair'], self.__year])
       cursor.close()
       return True
 
@@ -124,7 +125,7 @@ class User(dict):
     if type(data) is str:
       self['username'] = data
       self['subreddit'] = ''
-      self['bracket_id'] = 0
+      self['new_bracket_id'] = ''
       self['bracket_score'] = 0
       self['flair'] = ''
       self['year'] = year
@@ -134,7 +135,7 @@ class User(dict):
     else:
       self['username'] = data['username']
       self['subreddit'] = data['subreddit']
-      self['bracket_id'] = data['espn_bracket_id']
+      self['new_bracket_id'] = data['espn_new_bracket_id']
       self['bracket_score'] = data['espn_bracket_score']
       self['flair'] = data['flair']
       self['year'] = data['year']
