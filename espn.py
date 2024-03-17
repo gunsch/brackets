@@ -66,7 +66,7 @@ class Espn(threading.Thread):
     users_to_save = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-      scores = executor.map(self.get_score, map(lambda user: user['bracket_id'], users))
+      scores = executor.map(self.get_score, map(lambda user: user['new_bracket_id'], users))
       for (score, user) in zip(scores, users):
         if score != user['bracket_score']:
           user['bracket_score'] = score
