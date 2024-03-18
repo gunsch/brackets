@@ -93,7 +93,7 @@ class Users:
           UPDATE `users` SET
               `subreddit` = %s,
               `espn_bracket_id` = 0,
-              `espn_new_bracket_id` = %s
+              `espn_new_bracket_id` = %s,
               `espn_bracket_score` = %s,
               `flair` = %s
           WHERE `username` = %s AND `year` = %s
