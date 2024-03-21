@@ -6,7 +6,12 @@
 {% macro user_link(username, bracket_id, year) -%}
   <a
       name="{{ username | e }}"
-      href="https://fantasy.espn.com/games/tournament-challenge-bracket-{{ year  }}/bracket?id={{ bracket_id | e }}"
+      href="{{ bracket_href(bracket_id, year) }}"
       >{{ username | e }}</a>
   (<a href="https://www.reddit.com/u/{{ username | e }}">reddit</a>)
 {%- endmacro %}
+
+{% macro bracket_href(bracket_id, year) -%}
+https://fantasy.espn.com/games/tournament-challenge-bracket-{{ year  }}/bracket?id={{ bracket_id | e }}
+{%- endmacro %}
+

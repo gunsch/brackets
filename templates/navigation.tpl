@@ -22,7 +22,7 @@
           <li {{ active_for('settings') }}><a href="/settings">My Bracket</a></li>
         {% else %}
           <li><a href="/find_self">Me (leaderboards)</a></li>
-          <li><a href="/my_bracket">My Bracket</a></li>
+          <li><a href="{{ macros.bracket_href(user['new_bracket_id'], year) }}">My Bracket</a></li>
         {% endif %}
 
         {% if is_admin %}
